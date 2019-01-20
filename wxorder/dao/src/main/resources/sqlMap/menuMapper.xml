@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.weiyi.wx.order.dao.mapper.MenuMapper" >
+    <resultMap id="BaseResultMap" type="com.weiyi.wx.order.dao.entity.Menu" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_phone" property="userPhone" jdbcType="BIGINT" />
+        <result column="store_id" property="storeId" jdbcType="VARCHAR" />
+        <result column="food_id" property="foodId" jdbcType="BIGINT" />
+        <result column="food_name" property="foodName" jdbcType="VARCHAR" />
+        <result column="food_img" property="foodName" jdbcType="VARCHAR" />
+        <result column="img_name" property="imgName" jdbcType="VARCHAR" />
+        <result column="category" property="category" jdbcType="BIGINT" />
+        <result column="old_price" property="oldPrice" jdbcType="DOUBLE" />
+        <result column="new_price" property="newPrice" jdbcType="DOUBLE" />
+        <result column="vip_price" property="vipPrice" jdbcType="DOUBLE" />
+        <result column="recommend" property="recommend" jdbcType="BIGINT" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="taste" property="taste" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <insert id="addMenu" parameterType="com.weiyi.wx.order.dao.entity.Menu">
+       INSERT INTO
+       		menu(id,user_phone,store_id,food_id,food_name,food_img,img_name,category,old_price,new_price,vip_price,recommend,status,taste,create_time)
+       	VALUES
+       		(#{id}, #{userPhone},#{storeId},#{foodId},#{foodName},#{foodImg},#{imgName},#{category},#{oldPrice},#{newPrice},#{vipPrice},#{recommend},#{status},#{taste},#{createTime})
+    </insert>
+
+    <select id="queryById" parameterType="com.weiyi.wx.order.dao.entity.Menu" resultType="com.weiyi.wx.order.dao.entity.Menu">
+        select *
+        from menu
+        where store_id=#{storeId} and food_id=#{foodId} and user_phone=#{userPhone}
+    </select>
+    <select id="queryMenuCount" parameterType="com.weiyi.wx.order.dao.request.GetMenuRequest" resultType="int">
+        select COUNT(*)
+        from menu
+        <where>
+            user_phone = #{userPhone} and store_id = #{storeId}
+            <if test="foodName != null and foodName != ''">
+                AND food_name LIKE concat(concat('%',#{foodName}),'%')
+            </if>
+            <if test="category != null">
+                AND category = #{category}
+            </if>
+            <if test="recommend != null">
+                AND recommend = #{recommend}
+            </if>
+            <if test="foodId != null">
+                AND food_id = #{foodId}
+            </if>
+        </where>
+    </select>
+    <select id="queryMenu" parameterType="com.weiyi.wx.order.dao.request.GetMenuRequest" resultType="com.weiyi.wx.order.dao.entity.Menu">
+        select *
+        from menu
+        <where>
+            user_phone = #{userPhone} and store_id = #{storeId}
+            <if test="foodName != null and foodName != ''">
+                AND food_name LIKE concat(concat('%',#{foodName}),'%')
+            </if>
+            <if test="category != null">
+                AND category = #{category}
+            </if>
+            <if test="recommend != null">
+                AND recommend = #{recommend}
+            </if>
+            <if test="foodId != null">
+                AND food_id = #{foodId}
+            </if>
+            <if test="currentPage != null">
+                ORDER BY food_id limit #{currentPage},10
+            </if>
+            <if test="currentPage == null">
+                ORDER BY food_id
+            </if>
+        </where>
+    </select>
+    <delete id="deleteMenu" parameterType="com.weiyi.wx.order.dao.entity.Menu">
+        delete from menu where user_phone = #{userPhone} and store_id = #{storeId} and food_id=#{foodId}
+    </delete>
+    <update id="updateStatusAndRecommend" parameterType="com.weiyi.wx.order.dao.entity.Menu">
+        update menu
+        <set>
+            <if test="recommend != null and recommend != ''">
+                recommend = #{recommend},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+        </set>
+        where user_phone = #{userPhone} and store_id = #{storeId} and food_id = #{foodId}
+    </update>
+</mapper>

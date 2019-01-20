@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.weiyi.wx.order.dao.mapper.UserMapper" >
+    <resultMap id="BaseResultMap" type="com.weiyi.wx.order.dao.entity.User" >
+        <id column="user_phone" property="userPhone" jdbcType="BIGINT" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="token" property="token" jdbcType="VARCHAR" />
+        <result column="shop_total" property="shopTotal" jdbcType="BIGINT" />
+        <result column="shop_count" property="shopCount" jdbcType="BIGINT" />
+        <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="update_time" property="updateTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <insert id="addUser" parameterType="com.weiyi.wx.order.dao.entity.User">
+       INSERT INTO
+       		business(user_phone,user_name,password,token,shop_total,shop_count,user_address,create_time,update_time)
+       	VALUES
+       		(#{userPhone}, #{userName},#{password},#{token},#{shopTotal},#{shopCount},#{userAddress},#{createTime},#{updateTime})
+    </insert>
+
+    <select id="queryUserByPhone" parameterType="Long" resultType="com.weiyi.wx.order.dao.entity.User">
+        select * from business where user_phone = #{userPhone}
+    </select>
+
+    <update id="updateUser" parameterType="com.weiyi.wx.order.dao.entity.User">
+        update business
+        <set>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="token != null and token != ''">
+                token = #{token},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                user_email = #{userEmail},
+            </if>
+            <if test="userAddress != null and userAddress != ''">
+                user_address = #{userAddress},
+            </if>
+            <if test="shopTotal != null and shopTotal != ''">
+                shop_total = #{shopTotal},
+            </if>
+            <if test="shopCount != null and shopCount != ''">
+                shop_count = #{shopCount},
+            </if>
+            user_phone=#{userPhone}
+        </set>
+        where user_phone=#{userPhone}
+    </update>
+
+</mapper>

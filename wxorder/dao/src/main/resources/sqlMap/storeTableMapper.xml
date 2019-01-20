@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.weiyi.wx.order.dao.mapper.StoreTableMapper" >
+    <resultMap id="BaseResultMap" type="com.weiyi.wx.order.dao.entity.StoreTable" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_phone" property="userPhone" jdbcType="BIGINT" />
+        <result column="store_id" property="storeId" jdbcType="VARCHAR" />
+        <result column="table_id" property="tableId" jdbcType="BIGINT" />
+        <result column="capacity" property="capacity" jdbcType="BIGINT" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="person_num" property="personNum" jdbcType="BIGINT" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <insert id="addStoreTable" parameterType="com.weiyi.wx.order.dao.entity.StoreTable">
+       INSERT INTO
+       		store_table(id,user_phone,store_id,table_id,capacity,address,person_num,status,create_time)
+       	VALUES
+       		(#{id}, #{userPhone},#{storeId},#{tableId},#{capacity},#{address},#{personNum},#{status},#{createTime})
+    </insert>
+
+    <update id="updateStore" parameterType="com.weiyi.wx.order.dao.entity.Store">
+        update store
+        <set>
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <if test="storeName != null and storeName != ''">
+                store_name = #{store_name},
+            </if>
+            <if test="tableNum != null and tableNum != ''">
+                table_num = #{tableNum},
+            </if>
+            <if test="foodNum != null and foodNum != ''">
+                food_num = #{foodNum},
+            </if>
+            <if test="updateTime != null and updateTime != ''">
+                update_time = #{updateTime},
+            </if>
+            store_id=#{storeId}
+        </set>
+        where user_phone=#{userPhone}
+    </update>
+    <update id="updateStatusAndPerson" parameterType="com.weiyi.wx.order.dao.entity.StoreTable">
+        update store_table
+        set status = #{status},person_num = #{personNum}
+        where user_phone=#{userPhone} and store_id = #{storeId} and table_id = #{tableId}
+    </update>
+    <select id="queryByTableIdAndStoreId" parameterType="com.weiyi.wx.order.dao.entity.StoreTable" resultType="com.weiyi.wx.order.dao.entity.StoreTable">
+        select *
+        from store_table
+        where store_id=#{storeId} and table_id=#{tableId} and user_phone=#{userPhone}
+    </select>
+    <select id="queryTablesCount" parameterType="com.weiyi.wx.order.dao.request.GetStoreTablesRequest" resultType="int">
+        select COUNT(*)
+        from store_table
+        <where>
+            user_phone = #{userPhone} and store_id = #{storeId}
+            <if test="address != null and address != ''">
+                AND address LIKE concat(concat('%',#{address}),'%')
+            </if>
+            <if test="tableId != null and tableId != ''">
+                AND table_id = #{tableId}
+            </if>
+            <if test="capacity != null and capacity != ''">
+                AND capacity = #{capacity}
+            </if>
+            <if test="personNum != null and personNum != ''">
+                AND person_num = #{personNum}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="queryTables" parameterType="com.weiyi.wx.order.dao.request.GetStoreTablesRequest" resultType="com.weiyi.wx.order.dao.entity.StoreTable">
+        select *
+        from store_table
+        <where>
+            user_phone = #{userPhone} and store_id = #{storeId}
+            <if test="address != null and address != ''">
+                AND address LIKE concat(concat('%',#{address}),'%')
+            </if>
+            <if test="tableId != null and tableId != ''">
+                AND table_id = #{tableId}
+            </if>
+            <if test="capacity != null">
+                AND capacity = #{capacity}
+            </if>
+            <if test="personNum != null">
+                AND person_num = #{personNum}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="currentPage != null">
+                ORDER BY table_id limit #{currentPage},10
+            </if>
+            <if test="currentPage == null">
+                ORDER BY table_id
+            </if>
+        </where>
+
+    </select>
+    <delete id="deleteTable" parameterType="com.weiyi.wx.order.dao.entity.StoreTable">
+        delete from store_table where user_phone = #{userPhone} and store_id = #{storeId} and table_id=#{tableId}
+    </delete>
+</mapper>
