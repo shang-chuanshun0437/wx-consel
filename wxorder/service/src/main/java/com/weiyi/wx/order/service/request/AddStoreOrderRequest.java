@@ -16,8 +16,6 @@ public class AddStoreOrderRequest{
     //实付金额
     private Double totalAmount;
 
-    private Integer status;
-
     private Integer payType;
 
     private Integer source;
@@ -57,14 +55,6 @@ public class AddStoreOrderRequest{
 
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Integer getPayType() {

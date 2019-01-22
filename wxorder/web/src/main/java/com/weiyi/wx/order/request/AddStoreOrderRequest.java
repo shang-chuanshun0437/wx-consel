@@ -12,8 +12,6 @@ public class AddStoreOrderRequest extends BaseRequest{
     //实付金额
     private Double realAmount;
 
-    private Integer status;
-
     private Integer payType;
 
     private Integer source;
@@ -45,14 +43,6 @@ public class AddStoreOrderRequest extends BaseRequest{
 
     public void setRealAmount(Double realAmount) {
         this.realAmount = realAmount;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Integer getPayType() {

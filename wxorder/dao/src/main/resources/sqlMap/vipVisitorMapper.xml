@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.weiyi.wx.order.dao.mapper.VipVisitorMapper" >
+    <resultMap id="BaseResultMap" type="com.weiyi.wx.order.dao.entity.VipVisitor" >
+        <id column="vip_id" property="vipId" jdbcType="VARCHAR" />
+        <result column="real_amount" property="realAmount" jdbcType="BIGINT" />
+        <result column="total_amount" property="totalAmount" jdbcType="BIGINT" />
+        <result column="balance" property="balance" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="update_time" property="updateTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <insert id="addVip" parameterType="com.weiyi.wx.order.dao.entity.VipVisitor">
+       INSERT INTO
+       		vip (vip_id,real_amount,total_amount,balance,create_time,update_time)
+       	VALUES
+       		(#{vipId}, #{realAmount},#{totalAmount},#{balance},#{createTime},#{updateTime})
+    </insert>
+
+    <select id="queryRoleByPhone" parameterType="Long" resultType="com.weiyi.wx.order.dao.entity.RoleUser">
+        select user_phone,user_name,role_name,create_time,update_time from role_user where user_phone = #{userPhone}
+    </select>
+
+    <select id="queryUserRoleByPhone" parameterType="Long" resultType="java.lang.String">
+        select role_name from role_user where user_phone = #{userPhone}
+    </select>
+    <select id="queryRole" parameterType="com.weiyi.wx.order.dao.request.GetRoleUserRequest" resultType="com.weiyi.wx.order.dao.entity.RoleUser">
+        select *
+        from role_user
+        <where>
+            <if test="roleName != null and roleName != ''">
+                AND role_name LIKE concat(concat('%',#{roleName}),'%')
+            </if>
+            <if test="userPhone != null and userPhone != ''">
+                AND user_phone = #{userPhone}
+            </if>
+        </where>
+        limit #{currentPage},10
+    </select>
+    <select id="queryRoleCount" parameterType="com.weiyi.wx.order.dao.request.GetRoleUserRequest" resultType="int">
+        select count(*)
+        from role_user
+        <where>
+            <if test="roleName != null and roleName != ''">
+                AND role_name LIKE concat(concat('%',#{roleName}),'%')
+            </if>
+            <if test="userPhone != null and userPhone != ''">
+                AND user_phone = #{userPhone}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteRoleUserByPhone" parameterType="Long">
+        delete from role_user where user_phone = #{userPhone}
+    </delete>
+</mapper>

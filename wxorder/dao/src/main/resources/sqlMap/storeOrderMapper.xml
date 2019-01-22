@@ -33,6 +33,9 @@
             <if test="payType != null">
                 AND pay_type = #{payType}
             </if>
+            <if test="payType == null ">
+                AND pay_type != 1
+            </if>
             <if test="source != null">
                 AND source = #{source}
             </if>
@@ -54,6 +57,12 @@
             </if>
             <if test="payType != null">
                 AND pay_type = #{payType}
+            </if>
+            <if test="payType == null">
+                AND pay_type != 1
+            </if>
+            <if test="source != null">
+                AND source = #{source}
             </if>
             <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
                 AND create_time between #{beginTime} and #{endTime}

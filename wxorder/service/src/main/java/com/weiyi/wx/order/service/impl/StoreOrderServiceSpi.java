@@ -92,7 +92,7 @@ public class StoreOrderServiceSpi implements StoreOrderService
             orderInfo.setVipTotalPrice(orderInfo.getVipPrice() * orderInfo.getFoodCount());
 
             //实收金额
-            if (request.getStatus().intValue() == Constant.NO_PAY){
+            if (request.getPayType().intValue() == Constant.NO_PAY){
                 orderInfo.setRealPrice(0.0);
             }else {
                 Double realPrice = request.getVipNum() == null ?
