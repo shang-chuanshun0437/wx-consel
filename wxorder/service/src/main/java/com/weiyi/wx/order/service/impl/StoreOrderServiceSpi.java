@@ -5,14 +5,12 @@ import com.weiyi.wx.order.common.constant.ErrorCode;
 import com.weiyi.wx.order.common.exception.WxOrderAssert;
 import com.weiyi.wx.order.common.utils.CopyProperties;
 import com.weiyi.wx.order.common.utils.TimeUtil;
-import com.weiyi.wx.order.dao.entity.OrderInfo;
-import com.weiyi.wx.order.dao.entity.Store;
-import com.weiyi.wx.order.dao.entity.StoreOrder;
-import com.weiyi.wx.order.dao.entity.StoreTable;
+import com.weiyi.wx.order.dao.entity.*;
 import com.weiyi.wx.order.dao.mapper.*;
 import com.weiyi.wx.order.dao.request.GetStoreOrderListRequest;
 import com.weiyi.wx.order.service.api.OrderInfoService;
 import com.weiyi.wx.order.service.api.StoreOrderService;
+import com.weiyi.wx.order.service.api.VipVisitorService;
 import com.weiyi.wx.order.service.request.AddStoreOrderRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +41,9 @@ public class StoreOrderServiceSpi implements StoreOrderService
 
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+
+    @Autowired
+    private VipVisitorMapper vipVisitorMapper;
 
     @Transactional
     public void addStoreOrder(AddStoreOrderRequest request) {
@@ -186,7 +187,22 @@ public class StoreOrderServiceSpi implements StoreOrderService
                 dbStoreOrder.setRealAmount(dbStoreOrder.getRealAmount() + info.getTotalPrice());
             }
         }else {
+            //会员结账   查询该会员是否存在
+            VipVisitor vipVisitor = new VipVisitor();
+            vipVisitor.setUserPhone(storeOrder.getUserPhone());
+            vipVisitor.setVipId(storeOrder.getVipNum());
+
+            VipVisitor dbVipVisitor = vipVisitorMapper.queryVip(vipVisitor);
+            WxOrderAssert.isTrue(dbVipVisitor != null,ErrorCode.VIP_NOT_EXIST,"vip not exist.");
+
+            dbVipVisitor.setConsumCount(dbVipVisitor.getConsumCount() + 1);
+            dbVipVisitor.setUpdateTime(TimeUtil.getCurrentTime());
+
+            vipVisitorMapper.deleteVip(dbVipVisitor);
+            vipVisitorMapper.addVip(dbVipVisitor);
+
             for (OrderInfo info: orderInfos){
+
                 info.setRealPrice(info.getVipTotalPrice());
                 info.setVipNum(storeOrder.getVipNum());
                 orderInfoMapper.deleteOrderInfo(info);

@@ -1,6 +1,7 @@
 package com.weiyi.wx.order.request;
 
-public class AddVipVisitorRequest extends BaseRequest{
+public class UpdateVipVisitorRequest extends BaseRequest{
+    private Integer id;
     //会员编号
     private String vipId;
 
@@ -32,5 +33,13 @@ public class AddVipVisitorRequest extends BaseRequest{
 
     public void setValidTime(String validTime) {
         this.validTime = validTime;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

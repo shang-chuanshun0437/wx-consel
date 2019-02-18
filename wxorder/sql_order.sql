@@ -5,6 +5,7 @@ CREATE TABLE store_order
     order_id VARCHAR(48) NOT NULL comment "订单ID",
     user_phone BIGINT NOT NULL comment "商家手机号，唯一标示这个商家",
     store_id VARCHAR(48) NOT NULL comment "店铺id",
+    store_name VARCHAR(48) NOT NULL comment "店铺名称",
     table_id int NOT NULL comment "餐桌ID",
     person_num int NOT NULL comment "就餐人数",
     amount float(6,1) DEFAULT 0 comment "订单金额",

@@ -73,4 +73,10 @@ public class ErrorCode
 
     //订单已付款
     public static final int ORDER_HAVE_PAY = 1022;
+
+    //会员已存在
+    public static final int VIP_EXIST = 1023;
+
+    //会员不存在
+    public static final int VIP_NOT_EXIST = 1024;
 }

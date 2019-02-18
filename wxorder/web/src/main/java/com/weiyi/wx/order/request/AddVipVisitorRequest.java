@@ -1,123 +1,36 @@
 package com.weiyi.wx.order.request;
 
-public class AddMenuRequest extends BaseRequest{
-    //店铺编号
-    private String storeId;
+public class AddVipVisitorRequest extends BaseRequest{
+    //会员编号
+    private String vipId;
 
-    //食物编号
-    private Integer foodId;
+    //实际充值金额
+    private Double realAmount;
 
-    //食物名称
-    private String foodName;
+    //有效期
+    private String validTime;
 
-    //食物图片URL
-    private String foodImg;
-
-    private String imgName;
-
-    //食物所属的类目：1 小炒系列 ;2 凉菜系列 ； 3  海鲜系列； 4 汤系列；5 酒水饮料；6 主食
-    private Integer category;
-
-    //原价
-    private Double oldPrice;
-
-    //现价
-    private Double newPrice;
-
-    //会员价
-    private Double vipPrice;
-
-    //是否推荐 1 不推荐； 2 推荐
-    private Integer recommend;
-
-    //味道：1 不辣； 2 微辣； 3 中辣；4 特辣
-    private Integer taste;
-
-    public String getStoreId() {
-        return storeId;
+    public String getVipId() {
+        return vipId;
     }
 
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
+    public void setVipId(String vipId) {
+        this.vipId = vipId;
     }
 
-    public Integer getFoodId() {
-        return foodId;
+    public Double getRealAmount() {
+        return realAmount;
     }
 
-    public void setFoodId(Integer foodId) {
-        this.foodId = foodId;
+    public void setRealAmount(Double realAmount) {
+        this.realAmount = realAmount;
     }
 
-    public String getFoodName() {
-        return foodName;
+    public String getValidTime() {
+        return validTime;
     }
 
-    public void setFoodName(String foodName) {
-        this.foodName = foodName;
-    }
-
-    public Integer getCategory() {
-        return category;
-    }
-
-    public void setCategory(Integer category) {
-        this.category = category;
-    }
-
-    public Double getOldPrice() {
-        return oldPrice;
-    }
-
-    public void setOldPrice(Double oldPrice) {
-        this.oldPrice = oldPrice;
-    }
-
-    public Double getNewPrice() {
-        return newPrice;
-    }
-
-    public void setNewPrice(Double newPrice) {
-        this.newPrice = newPrice;
-    }
-
-    public Double getVipPrice() {
-        return vipPrice;
-    }
-
-    public void setVipPrice(Double vipPrice) {
-        this.vipPrice = vipPrice;
-    }
-
-    public Integer getRecommend() {
-        return recommend;
-    }
-
-    public void setRecommend(Integer recommend) {
-        this.recommend = recommend;
-    }
-
-    public Integer getTaste() {
-        return taste;
-    }
-
-    public void setTaste(Integer taste) {
-        this.taste = taste;
-    }
-
-    public String getFoodImg() {
-        return foodImg;
-    }
-
-    public void setFoodImg(String foodImg) {
-        this.foodImg = foodImg;
-    }
-
-    public String getImgName() {
-        return imgName;
-    }
-
-    public void setImgName(String imgName) {
-        this.imgName = imgName;
+    public void setValidTime(String validTime) {
+        this.validTime = validTime;
     }
 }

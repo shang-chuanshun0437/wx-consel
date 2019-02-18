@@ -8,6 +8,9 @@ public class QueryStoreOrderRequest extends BaseRequest{
 
     private Integer tableId;
 
+    //会员编号
+    private String vipNum;
+
     //支付方式：1 未支付； 2 前台支付； 3 支付宝支付（通过点餐页面支付）；4 微信支付（通过点餐页面支付）
     private Integer payType;
 
@@ -75,5 +78,13 @@ public class QueryStoreOrderRequest extends BaseRequest{
 
     public void setCurrentPage(Integer currentPage) {
         this.currentPage = currentPage;
+    }
+
+    public String getVipNum() {
+        return vipNum;
+    }
+
+    public void setVipNum(String vipNum) {
+        this.vipNum = vipNum;
     }
 }

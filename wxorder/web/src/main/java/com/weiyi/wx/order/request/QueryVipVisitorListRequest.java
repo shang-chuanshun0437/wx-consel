@@ -1,14 +1,15 @@
 package com.weiyi.wx.order.request;
 
-public class AddVipVisitorRequest extends BaseRequest{
+public class QueryVipVisitorListRequest extends BaseRequest{
     //会员编号
     private String vipId;
 
-    //实际充值金额
-    private Double realAmount;
+    private String beginTime;
 
-    //可消费的总金额
-    private Double totalAmount;
+    private String endTime;
+
+    //查询第几页
+    private Integer currentPage;
 
     public String getVipId() {
         return vipId;
@@ -18,19 +19,27 @@ public class AddVipVisitorRequest extends BaseRequest{
         this.vipId = vipId;
     }
 
-    public Double getRealAmount() {
-        return realAmount;
+    public String getBeginTime() {
+        return beginTime;
     }
 
-    public void setRealAmount(Double realAmount) {
-        this.realAmount = realAmount;
+    public void setBeginTime(String beginTime) {
+        this.beginTime = beginTime;
     }
 
-    public Double getTotalAmount() {
-        return totalAmount;
+    public String getEndTime() {
+        return endTime;
     }
 
-    public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = totalAmount;
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public Integer getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
     }
 }

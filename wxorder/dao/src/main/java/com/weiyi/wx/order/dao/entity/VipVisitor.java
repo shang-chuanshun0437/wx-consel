@@ -5,19 +5,23 @@ package com.weiyi.wx.order.dao.entity;
 */
 public class VipVisitor
 {
+    private Integer id;
+
     private String vipId;
 
+    private Long userPhone;
+
     //实际充值金额
-    private Integer realAmount;
+    private Double realAmount;
 
-    //总金额
-    private String totalAmount;
-
-    //剩余金额
-    private Integer balance;
+    //消费次数
+    private int consumCount;
 
     //最近一次消费时间
     private String updateTime;
+
+    //有效期
+    private String validTime;
 
     private String createTime;
 
@@ -29,28 +33,20 @@ public class VipVisitor
         this.vipId = vipId;
     }
 
-    public Integer getRealAmount() {
+    public Double getRealAmount() {
         return realAmount;
     }
 
-    public void setRealAmount(Integer realAmount) {
+    public void setRealAmount(Double realAmount) {
         this.realAmount = realAmount;
     }
 
-    public String getTotalAmount() {
-        return totalAmount;
+    public int getConsumCount() {
+        return consumCount;
     }
 
-    public void setTotalAmount(String totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public Integer getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Integer balance) {
-        this.balance = balance;
+    public void setConsumCount(int consumCount) {
+        this.consumCount = consumCount;
     }
 
     public String getUpdateTime() {
@@ -67,5 +63,43 @@ public class VipVisitor
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public Long getUserPhone() {
+        return userPhone;
+    }
+
+    public void setUserPhone(Long userPhone) {
+        this.userPhone = userPhone;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getValidTime() {
+        return validTime;
+    }
+
+    public void setValidTime(String validTime) {
+        this.validTime = validTime;
+    }
+
+    @Override
+    public String toString() {
+        return "VipVisitor{" +
+                "id=" + id +
+                ", vipId='" + vipId + '\'' +
+                ", userPhone=" + userPhone +
+                ", realAmount=" + realAmount +
+                ", consumCount=" + consumCount +
+                ", updateTime='" + updateTime + '\'' +
+                ", validTime='" + validTime + '\'' +
+                ", createTime='" + createTime + '\'' +
+                '}';
     }
 }

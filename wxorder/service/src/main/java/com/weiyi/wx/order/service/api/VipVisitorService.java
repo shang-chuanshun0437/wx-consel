@@ -1,23 +1,26 @@
 package com.weiyi.wx.order.service.api;
 
-import com.weiyi.wx.order.dao.entity.Menu;
-import com.weiyi.wx.order.dao.request.GetMenuRequest;
+import com.weiyi.wx.order.dao.entity.StoreOrder;
+import com.weiyi.wx.order.dao.entity.VipVisitor;
+import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
+import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
 
 import java.util.List;
 
-public interface MenuService
+public interface VipVisitorService
 {
-    void addMenu(Menu menu);
+    void addVip(VipVisitor vipVisitor);
 
-    List<Menu> queryMenu(GetMenuRequest getMenuRequest);
+    void deleteVip(VipVisitor vipVisitor);
 
-    int queryMenuCount(GetMenuRequest getMenuRequest);
+    void updateVip(VipVisitor vipVisitor);
 
-    void deleteMenu(Menu menu);
+    List<VipVisitor> queryVipList(GetVipVisitorListRequest request);
 
-    void updateMenu(Menu menu);
+    int queryVipListCount(GetVipVisitorListRequest request);
 
-    Menu queryMenuById(Menu menu);
+    int queryVipConsumeCount(GetVipConsumeRequest request);
 
-    void updateStatusAndRecommend(Menu menu);
+    List<StoreOrder> queryVipConsumeList(GetVipConsumeRequest request);
+
 }

@@ -13,6 +13,8 @@ public class StoreOrder
 
     private String storeId;
 
+    private String storeName;
+
     private Integer tableId;
 
     private Integer personNum;
@@ -125,5 +127,13 @@ public class StoreOrder
 
     public void setPersonNum(Integer personNum) {
         this.personNum = personNum;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }

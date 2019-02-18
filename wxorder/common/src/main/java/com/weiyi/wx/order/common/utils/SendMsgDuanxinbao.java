@@ -8,7 +8,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class SendMsg
+public class SendMsgDuanxinbao
 {
 	//账号  禁止修改
 	private static final String USER_NAME = "amlboydotcom";

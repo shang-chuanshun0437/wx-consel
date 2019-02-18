@@ -1,31 +1,24 @@
 package com.weiyi.wx.order.common.utils;
 
-import java.text.SimpleDateFormat;
-
 public class Test
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
-        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-        String time = f.format("2009-01-03 00:00:00");
+        //测试添加
+        SolrEntity solrEntity = new SolrEntity();
+        solrEntity.setId("11");
+        solrEntity.setProductName("小米Note版，无限精彩");
+        solrEntity.setProductPrice(50.03f);
+        solrEntity.setProductDescription("欢迎购买");
+        solrEntity.setProductCatalogName("手机");
+        solrEntity.setProductPicture("http://www.baidu.com");
+        SolrManage.addDocument(solrEntity);
 
-        String phone = "+8618753137390";
-        String msgCode = "1234";
+        //测试查询
+        //SolrManage.queryDocument();
 
-        String result = SendMsg.send(phone,msgCode,0);
-        System.out.println(result);
-        if (result != null && result.equals("0"))
-        {
-            //短信发送成功
-            //TODO 做贵公司自己的业务逻辑处理
-            System.out.println(result);
-        }
-        else
-        {
-            //短信发送失败
-            //TODO 做贵公司自己的业务逻辑处理
-            System.out.println(result);
-        }
+        //测试删除
+        //SolrManage.deleteDocumentById("11");
 
     }
 }

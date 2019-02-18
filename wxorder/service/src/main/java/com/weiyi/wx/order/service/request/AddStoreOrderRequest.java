@@ -9,6 +9,9 @@ public class AddStoreOrderRequest{
     //店铺编号
     private String storeId;
 
+    //店铺名称
+    private String storeName;
+
     private Integer tableId;
 
     private Integer personNum;
@@ -95,5 +98,13 @@ public class AddStoreOrderRequest{
 
     public void setPersonNum(Integer personNum) {
         this.personNum = personNum;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }

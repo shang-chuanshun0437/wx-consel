@@ -1,8 +1,8 @@
 package com.weiyi.wx.order.dao.request;
 
-import com.weiyi.wx.order.dao.entity.StoreOrder;
+import com.weiyi.wx.order.dao.entity.VipVisitor;
 
-public class GetStoreOrderListRequest extends StoreOrder
+public class GetVipVisitorListRequest extends VipVisitor
 {
     private Integer currentPage;
 

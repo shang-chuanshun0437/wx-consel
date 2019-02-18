@@ -1,20 +1,15 @@
 package com.weiyi.wx.order.service.impl;
 
-import com.weiyi.wx.order.common.constant.Constant;
 import com.weiyi.wx.order.common.constant.ErrorCode;
 import com.weiyi.wx.order.common.exception.WxOrderAssert;
 import com.weiyi.wx.order.common.redis.RedisClient;
-import com.weiyi.wx.order.common.utils.FileFactory;
 import com.weiyi.wx.order.common.utils.TimeUtil;
-import com.weiyi.wx.order.dao.entity.Menu;
-import com.weiyi.wx.order.dao.entity.Store;
-import com.weiyi.wx.order.dao.entity.StoreTable;
-import com.weiyi.wx.order.dao.mapper.MenuMapper;
-import com.weiyi.wx.order.dao.mapper.StoreMapper;
-import com.weiyi.wx.order.dao.mapper.StoreTableMapper;
-import com.weiyi.wx.order.dao.mapper.UserMapper;
-import com.weiyi.wx.order.dao.request.GetMenuRequest;
-import com.weiyi.wx.order.service.api.MenuService;
+import com.weiyi.wx.order.dao.entity.StoreOrder;
+import com.weiyi.wx.order.dao.entity.VipVisitor;
+import com.weiyi.wx.order.dao.mapper.VipVisitorMapper;
+import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
+import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
+import com.weiyi.wx.order.service.api.VipVisitorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,104 +19,79 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class MenuServiceSpi implements MenuService
+public class VipVisitorServiceSpi implements VipVisitorService
 {
-    private Logger logger = LoggerFactory.getLogger(MenuServiceSpi.class);
+    private Logger logger = LoggerFactory.getLogger(VipVisitorServiceSpi.class);
 
     @Autowired
-    private StoreMapper storeMapper;
+    private VipVisitorMapper vipVisitorMapper;
 
-    @Autowired
-    private MenuMapper menuMapper;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private RedisClient redisClient;
-
-    public void addMenu(Menu menu) {
+    public void addVip(VipVisitor vipVisitor) {
         if (logger.isDebugEnabled()){
-            logger.debug("inter addMenu() func.the user is:{}",menu.getUserPhone());
+            logger.debug("inter addVip() func.the vipVisitor is:{}",vipVisitor);
         }
-        //校验该店铺是否属于该用户
-        Store dbStore = storeMapper.queryStoreById(menu.getStoreId());
-        WxOrderAssert.isTrue(dbStore != null, ErrorCode.STORE_NOT_EXIST,"store not exist.");
-        WxOrderAssert.isTrue(dbStore.getUserPhone().equals(menu.getUserPhone()),ErrorCode.STORE_NOT_RIGHT,"the store not belong the user.");
 
-        //校验食物编号是否存在
-        Menu dbMenu = menuMapper.queryById(menu);
-        WxOrderAssert.isTrue(dbMenu == null,ErrorCode.FOOD_EXIST,"food already exist.");
+        //校验VIP是否存在
+        VipVisitor dbVipVisitor = vipVisitorMapper.queryVip(vipVisitor);
+        WxOrderAssert.isTrue(dbVipVisitor == null, ErrorCode.VIP_EXIST,"vip already exist.");
 
-        //添加食物
-        menu.setCreateTime(TimeUtil.getCurrentTime());
-        menu.setStatus(Constant.NOT_SELL_OUT);
+        vipVisitor.setCreateTime(TimeUtil.getCurrentTime());
+        vipVisitor.setConsumCount(0);
+        vipVisitor.setUpdateTime(TimeUtil.getCurrentTime());
 
-        menuMapper.addMenu(menu);
+        vipVisitorMapper.addVip(vipVisitor);
     }
 
-    public List<Menu> queryMenu(GetMenuRequest getMenuRequest) {
+    public void deleteVip(VipVisitor vipVisitor) {
         if (logger.isDebugEnabled()){
-            logger.debug("inter queryMenu() func.the user is:{}",getMenuRequest.getUserPhone());
+            logger.debug("inter deleteVip() func.the vipVisitor is:{}",vipVisitor);
         }
-        return menuMapper.queryMenu(getMenuRequest);
-    }
-
-    public int queryMenuCount(GetMenuRequest getMenuRequest) {
-        if (logger.isDebugEnabled()){
-            logger.debug("inter queryMenuCount() func.the user is:{}",getMenuRequest.getUserPhone());
-        }
-        return menuMapper.queryMenuCount(getMenuRequest);
-    }
-
-    public void deleteMenu(Menu menu) {
-        if (logger.isDebugEnabled()){
-            logger.debug("inter deleteMenu() func.the user is:{}",menu.getUserPhone());
-        }
-        //从数据库中查询menu
-        Menu dbMenu = menuMapper.queryById(menu);
-        WxOrderAssert.isTrue(dbMenu != null,ErrorCode.FOOD_NOT_EXIST,"the food not exist.");
-
-        menuMapper.deleteMenu(dbMenu);
-
-        //删除图片
-        FileFactory.delFile(Constant.FOOD_IMG_DIR_ROOT + FileFactory.getFileNameWithTime(dbMenu.getFoodImg()));
+        vipVisitorMapper.deleteVip(vipVisitor);
     }
 
     @Transactional
-    public void updateMenu(Menu menu) {
+    public void updateVip(VipVisitor vipVisitor) {
         if (logger.isDebugEnabled()){
-            logger.debug("inter updateMenu() func.the user is:{}",menu.getUserPhone());
+            logger.debug("inter updateVip() func.the vipVisitor is:{}",vipVisitor);
         }
-
-        //从数据库中查询menu
-        Menu dbMenu = menuMapper.queryById(menu);
-        WxOrderAssert.isTrue(dbMenu != null,ErrorCode.FOOD_NOT_EXIST,"the food not exist.");
+        //去数据库中查询id是否存在
+        VipVisitor dbVipVisitor = vipVisitorMapper.queryVipById(vipVisitor.getId());
+        WxOrderAssert.isTrue(dbVipVisitor != null,ErrorCode.VIP_NOT_EXIST,"vip not exit.");
 
         //先删除再插入
-        menuMapper.deleteMenu(dbMenu);
+        vipVisitorMapper.deleteVipById(vipVisitor.getId());
 
-        menu.setCreateTime(dbMenu.getCreateTime());
-        addMenu(menu);
-
-        //如果修改了商品图片则删除之前的商品图片
-        if (!dbMenu.getFoodImg().equals(menu.getFoodImg())){
-            FileFactory.delFile(Constant.FOOD_IMG_DIR_ROOT + FileFactory.getFileNameWithTime(dbMenu.getFoodImg()));
-        }
+        vipVisitor.setConsumCount(dbVipVisitor.getConsumCount());
+        vipVisitor.setUpdateTime(dbVipVisitor.getUpdateTime());
+        vipVisitor.setCreateTime(dbVipVisitor.getCreateTime());
+        vipVisitorMapper.addVip(vipVisitor);
     }
 
-    public Menu queryMenuById(Menu menu) {
+    public List<VipVisitor> queryVipList(GetVipVisitorListRequest request) {
         if (logger.isDebugEnabled()){
-            logger.debug("inter queryMenuById() func.the user is:{}",menu.getUserPhone());
+            logger.debug("inter queryVipList() func.the user phone is:{}",request.getUserPhone());
         }
-        return menuMapper.queryById(menu);
+        return vipVisitorMapper.queryVipList(request);
     }
 
-    public void updateStatusAndRecommend(Menu menu) {
+    public int queryVipListCount(GetVipVisitorListRequest request) {
         if (logger.isDebugEnabled()){
-            logger.debug("inter updateStatusAndRecommend() func.the user is:{}",menu.getUserPhone());
+            logger.debug("inter queryVipListCount() func.the user phone is:{}",request.getUserPhone());
         }
+        return vipVisitorMapper.queryVipListCount(request);
+    }
 
-        menuMapper.updateStatusAndRecommend(menu);
+    public int queryVipConsumeCount(GetVipConsumeRequest request) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter queryVipConsumeCount() func.the user phone is:{}",request.getUserPhone());
+        }
+        return vipVisitorMapper.queryVipConsumeCount(request);
+    }
+
+    public List<StoreOrder> queryVipConsumeList(GetVipConsumeRequest request) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter queryVipConsumeList() func.the user phone is:{}",request.getUserPhone());
+        }
+        return vipVisitorMapper.queryVipConsumeList(request);
     }
 }

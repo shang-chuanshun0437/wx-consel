@@ -1,7 +1,9 @@
 package com.weiyi.wx.order.dao.mapper;
 
-import com.weiyi.wx.order.dao.entity.Menu;
+import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.VipVisitor;
+import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
+import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,11 +13,19 @@ public interface VipVisitorMapper
 {
     void addVip(VipVisitor vipVisitor);
 
-    void deleteVip(int vipId);
+    void deleteVip(VipVisitor vipVisitor);
 
-    VipVisitor queryVip(int vipId);
+    void deleteVipById(int vipId);
 
-    List<VipVisitor> queryVipList(VipVisitor vipVisitor);
+    VipVisitor queryVip(VipVisitor vipVisitor);
 
-    int queryVipListCount(VipVisitor vipVisitor);
+    VipVisitor queryVipById(int vipId);
+
+    List<VipVisitor> queryVipList(GetVipVisitorListRequest vipVisitor);
+
+    int queryVipListCount(GetVipVisitorListRequest vipVisitor);
+
+    int queryVipConsumeCount(GetVipConsumeRequest request);
+
+    List<StoreOrder> queryVipConsumeList(GetVipConsumeRequest request);
 }

@@ -1,5 +1,6 @@
 package com.weiyi.wx.order;
 
+import com.weiyi.wx.order.common.rabbitmq.RabbitManage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -25,6 +26,7 @@ public class SmartLockApplicationStart extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         builder.sources(this.getClass());
+        RabbitManage.simpleReceiveMsg();
         return super.configure(builder);
     }
 }

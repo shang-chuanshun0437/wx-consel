@@ -5,12 +5,18 @@ import com.weiyi.wx.order.common.constant.Constant;
 import com.weiyi.wx.order.common.exception.WxOrderException;
 import com.weiyi.wx.order.common.utils.CopyProperties;
 import com.weiyi.wx.order.common.utils.FileFactory;
+import com.weiyi.wx.order.common.utils.TimeUtil;
 import com.weiyi.wx.order.dao.entity.Menu;
-import com.weiyi.wx.order.dao.request.GetMenuRequest;
+import com.weiyi.wx.order.dao.entity.StoreOrder;
+import com.weiyi.wx.order.dao.entity.VipVisitor;
+import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
+import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
+import com.weiyi.wx.order.domain.Statistics;
 import com.weiyi.wx.order.interceptor.SecurityAnnotation;
 import com.weiyi.wx.order.request.*;
 import com.weiyi.wx.order.response.*;
 import com.weiyi.wx.order.service.api.MenuService;
+import com.weiyi.wx.order.service.api.VipVisitorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,191 +26,211 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
+import java.util.*;
 
 @Controller
-@RequestMapping("/store/menu")
-public class MenuController
+@RequestMapping("/store/vip")
+public class VipVisitorController
 {
-    private Logger logger = LoggerFactory.getLogger(MenuController.class);
+    private Logger logger = LoggerFactory.getLogger(VipVisitorController.class);
 
     @Autowired
-    private MenuService menuService;
+    private VipVisitorService vipVisitorService;
 
     /*
-    *添加菜单食物
+    *新增会员
     */
     @RequestMapping(value = "/add",method = {RequestMethod.POST})
     @ResponseBody
     @SecurityAnnotation()
-    public AddMenuResponse addMenu(@RequestBody AddMenuRequest request)
+    public AddVipVisitorResponse addVip(@RequestBody AddVipVisitorRequest request)
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("inter addMenu() func,phone num:{}",request.getUserPhone());
+            logger.debug("inter addVip() func,VipId num:{}",request.getVipId());
         }
 
-        AddMenuResponse response = new AddMenuResponse();
+        AddVipVisitorResponse response = new AddVipVisitorResponse();
         Result result = new Result();
         response.setResult(result);
 
-        Menu menu = new Menu();
-        CopyProperties.copy(menu,request);
-        //存入数据库的商品图片名为原始图片名，不带有时间戳
-        menu.setImgName(FileFactory.getFileName(request.getImgName()));
+        VipVisitor vipVisitor = new VipVisitor();
+        CopyProperties.copy(vipVisitor,request);
         try {
-            menuService.addMenu(menu);
+            vipVisitorService.addVip(vipVisitor);
         }catch (WxOrderException e){
-            //菜单添加失败后，要删除对应的商品图片
-            FileFactory.delFile(Constant.FOOD_IMG_DIR_ROOT + request.getImgName());
+            logger.error("addVip error:{}",e.getMsg());
             result.setRetMsg(e.getMsg());
             result.setRetCode(e.getCode());
         }
+
         return response;
     }
 
     /*
-     *删除菜单食物
+     *删除会员
      */
     @RequestMapping(value = "/delete",method = {RequestMethod.POST})
     @ResponseBody
     @SecurityAnnotation()
-    public DeleteMenuResponse deleteMenu(@RequestBody DeleteMenuRequest request)
+    public DeleteVipVisitorResponse deleteVip(@RequestBody DeleteVipVisitorRequest request)
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("inter deleteMenu() func,phone num:{}",request.getUserPhone());
+            logger.debug("inter deleteVip() func,VipId num:{}",request.getVipId());
         }
-        DeleteMenuResponse response = new DeleteMenuResponse();
+
+        DeleteVipVisitorResponse response = new DeleteVipVisitorResponse();
         Result result = new Result();
         response.setResult(result);
 
-        Menu menu = new Menu();
-        CopyProperties.copy(menu,request);
+        VipVisitor vipVisitor = new VipVisitor();
+        CopyProperties.copy(vipVisitor,request);
 
-        try {
-            menuService.deleteMenu(menu);
-        }catch (WxOrderException e){
-            result.setRetMsg(e.getMsg());
-            result.setRetCode(e.getCode());
-        }
+        vipVisitorService.deleteVip(vipVisitor);
+
         return response;
     }
 
     /*
-     *更新菜单食物
+     *更新会员
      */
     @RequestMapping(value = "/update",method = {RequestMethod.POST})
     @ResponseBody
     @SecurityAnnotation()
-    public UpdateMenuResponse updateMenu(@RequestBody UpdateMenuRequest request)
+    public UpdateVipVisitorListResponse updateVip(@RequestBody UpdateVipVisitorRequest request)
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("inter updateMenu() func,phone num:{}",request.getUserPhone());
+            logger.debug("inter updateVip() func,user num:{}",request.getUserPhone());
         }
 
-        UpdateMenuResponse response = new UpdateMenuResponse();
+        UpdateVipVisitorListResponse response = new UpdateVipVisitorListResponse();
         Result result = new Result();
         response.setResult(result);
 
-        Menu menu = new Menu();
-        CopyProperties.copy(menu,request);
-        try {
-            menuService.updateMenu(menu);
-        }catch (WxOrderException e){
-            result.setRetCode(e.getCode());
-            result.setRetMsg(e.getMsg());
-        }
+        VipVisitor vipVisitor = new VipVisitor();
+        CopyProperties.copy(vipVisitor,request);
+
+        vipVisitorService.updateVip(vipVisitor);
         return response;
     }
     /*
-     *更新菜单食物----更新是否售罄、是否推荐
-     */
-    @RequestMapping(value = "/update/statusAndRecommend",method = {RequestMethod.POST})
-    @ResponseBody
-    @SecurityAnnotation()
-    public UpdateStatusAndRecommendRes updateStatusAndRecommend(@RequestBody UpdateStatusAndRecommendReq request)
-    {
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("inter updateStatusAndRecommend() func,phone num:{}",request.getUserPhone());
-        }
-
-        UpdateStatusAndRecommendRes response = new UpdateStatusAndRecommendRes();
-        Result result = new Result();
-        response.setResult(result);
-
-        Menu menu = new Menu();
-        CopyProperties.copy(menu,request);
-        try {
-            menuService.updateStatusAndRecommend(menu);
-        }catch (WxOrderException e){
-            result.setRetCode(e.getCode());
-            result.setRetMsg(e.getMsg());
-        }
-        return response;
-    }
-    /*
-     *查询菜单列表
+     *查询会员列表
      */
     @RequestMapping(value = "/query/list",method = {RequestMethod.POST})
     @ResponseBody
     @SecurityAnnotation()
-    public QueryMenuResponse queryMenu(@RequestBody QueryMenuRequest request)
+    public QueryVipVisitorListResponse queryVipList(@RequestBody QueryVipVisitorListRequest request)
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("inter queryMenu() func,phone num:{}",request.getUserPhone());
+            logger.debug("inter queryVipList() func,user num:{}",request.getUserPhone());
         }
 
-        QueryMenuResponse response = new QueryMenuResponse();
+        QueryVipVisitorListResponse response = new QueryVipVisitorListResponse();
         Result result = new Result();
         response.setResult(result);
 
-        GetMenuRequest getMenuRequest = new GetMenuRequest();
-        CopyProperties.copy(getMenuRequest,request);
-        if (getMenuRequest.getCurrentPage() != null){
-            getMenuRequest.setCurrentPage((request.getCurrentPage() - 1) * Constant.PAGE_SIZE);
+        if (request.getCurrentPage() != null){
+            request.setCurrentPage((request.getCurrentPage() - 1) * Constant.PAGE_SIZE);
         }
-        try {
-            int total = menuService.queryMenuCount(getMenuRequest);
-            List<Menu> menus = menuService.queryMenu(getMenuRequest);
 
-            if (menus != null && menus.size() > 0){
-                response.setMenus(menus.toArray(new Menu[menus.size()]));
-            }
+        GetVipVisitorListRequest getVipVisitorListRequest = new GetVipVisitorListRequest();
+        CopyProperties.copy(getVipVisitorListRequest,request);
+
+        int total = vipVisitorService.queryVipListCount(getVipVisitorListRequest);
+        List<VipVisitor> vipVisitors = vipVisitorService.queryVipList(getVipVisitorListRequest);
+        if (vipVisitors != null && vipVisitors.size() > 0){
             response.setTotal(total);
-        }catch (WxOrderException e){
-            result.setRetMsg(e.getMsg());
-            result.setRetCode(e.getCode());
+            response.setVipVisitors(vipVisitors.toArray(new VipVisitor[vipVisitors.size()]));
         }
         return response;
     }
 
     /*
-     *查询菜单单个商品
+     *查询会员消费记录
      */
-    @RequestMapping(value = "/query",method = {RequestMethod.POST})
+    @RequestMapping(value = "/query/consume",method = {RequestMethod.POST})
     @ResponseBody
     @SecurityAnnotation()
-    public QueryMenuByIdResponse queryMenuById(@RequestBody QueryMenuByIdRequest request)
+    public QueryVipConsumeResponse queryVipConsume(@RequestBody QueryVipConsumeRequest request)
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("inter queryMenuById() func,phone num:{}",request.getUserPhone());
+            logger.debug("inter queryVipConsume() func,user num:{}",request.getUserPhone());
         }
 
-        QueryMenuByIdResponse response = new QueryMenuByIdResponse();
+        QueryVipConsumeResponse response = new QueryVipConsumeResponse();
         Result result = new Result();
         response.setResult(result);
 
-        Menu menu = new Menu();
-        CopyProperties.copy(menu,request);
+        if (request.getCurrentPage() != null){
+            request.setCurrentPage((request.getCurrentPage() - 1) * Constant.PAGE_SIZE);
+        }
 
-        Menu dbMenu = menuService.queryMenuById(menu);
+        GetVipConsumeRequest getVipConsumeRequest = new GetVipConsumeRequest();
+        CopyProperties.copy(getVipConsumeRequest,request);
 
-        response.setMenu(dbMenu);
+        int total = vipVisitorService.queryVipConsumeCount(getVipConsumeRequest);
+        List<StoreOrder> storeOrders = vipVisitorService.queryVipConsumeList(getVipConsumeRequest);
+        if (storeOrders != null && storeOrders.size() > 0){
+            response.setTotal(total);
+            response.setStoreOrders(storeOrders.toArray(new StoreOrder[storeOrders.size()]));
+        }
+        return response;
+    }
+
+    /*
+     *查询会员新增数量
+     */
+    @RequestMapping(value = "/query/addNum",method = {RequestMethod.POST})
+    @ResponseBody
+    @SecurityAnnotation()
+    public QueryVipAddNumResponse queryVipAddNum(@RequestBody QueryVipAddNumRequest request)
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryVipAddNum() func,user num:{}",request.getUserPhone());
+        }
+
+        QueryVipAddNumResponse response = new QueryVipAddNumResponse();
+        Result result = new Result();
+        response.setResult(result);
+
+        GetVipVisitorListRequest getVipVisitorListRequest = new GetVipVisitorListRequest();
+        CopyProperties.copy(getVipVisitorListRequest,request);
+
+        List<VipVisitor> vipVisitors = vipVisitorService.queryVipList(getVipVisitorListRequest);
+
+        Map<String,Integer> map = new HashMap<String,Integer>();
+        //初始化map
+        TimeUtil.formatMap(request.getBeginTime(),request.getEndTime(),map);
+        if (vipVisitors != null && vipVisitors.size() > 0){
+            for (VipVisitor vipVisitor : vipVisitors){
+                String date = TimeUtil.getDate(vipVisitor.getCreateTime());
+                Integer total = map.get(date);
+                if (total == null){
+                    map.put(date,1);
+                }else {
+                    map.put(date,total + 1);
+                }
+            }
+        }
+        //遍历map
+        Iterator iterator = map.entrySet().iterator();
+        List<Statistics> statisticsList = new ArrayList<Statistics>();
+        while(iterator.hasNext())
+        {
+            Map.Entry<String, Integer> entry = (Map.Entry<String, Integer>) iterator.next();
+            Statistics statistics = new Statistics();
+
+            statistics.setYear(entry.getKey());
+            statistics.setValue(entry.getValue());
+
+            statisticsList.add(statistics);
+        }
+        response.setStatistics(statisticsList.toArray(new Statistics[statisticsList.size()]));
         return response;
     }
 }

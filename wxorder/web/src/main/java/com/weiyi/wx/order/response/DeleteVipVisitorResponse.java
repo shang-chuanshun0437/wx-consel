@@ -1,5 +1,5 @@
 package com.weiyi.wx.order.response;
 
-public class AddVipVisitorResponse extends BaseResponse
+public class DeleteVipVisitorResponse extends BaseResponse
 {
 }

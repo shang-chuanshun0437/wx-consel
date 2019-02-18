@@ -13,19 +13,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class SolrClient
+public class SolrManage
 {
-    private static String BASE_URL = "http://127.0.0.1:8080/solr/newCore";
+    private static String BASE_URL = "http://192.168.1.4:8080/solr/newCore";
 
     //添加文档，如果ID存在则替换，不存在则新建
-    public static void addDocument() throws Exception
+    public static void addDocument(SolrEntity solrEntity) throws Exception
     {
         HttpSolrClient httpSolrClient = getHttpSolrClient();
 
         SolrInputDocument document = new SolrInputDocument();
-        document.addField("id","123456");
-        document.addField("content_ik","我是中国人");
-        document.addField("title_ik","哈喽，中国人");
+        document.addField("id",solrEntity.getId());
+        document.addField("product_name",solrEntity.getProductName());
+        document.addField("product_price",solrEntity.getProductPrice());
+        document.addField("product_description",solrEntity.getProductDescription());
+        document.addField("product_picture",solrEntity.getProductPicture());
+        document.addField("product_catalog_name",solrEntity.getProductCatalogName());
         UpdateResponse response = httpSolrClient.add(document);
         httpSolrClient.commit();
         httpSolrClient.close();

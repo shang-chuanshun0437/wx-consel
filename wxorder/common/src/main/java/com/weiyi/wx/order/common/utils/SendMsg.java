@@ -1,177 +1,306 @@
 package com.weiyi.wx.order.common.utils;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SendMsg
 {
-	//账号  禁止修改
-	private static final String USER_NAME = "amlboydotcom";
+	//智能匹配模板发送接口的http地址
+	private static String URI_SEND_SMS = "https://sms.yunpian.com/v2/sms/single_send.json";
 
-	//密码  禁止修改
-	private static final String PASSWORD = "120000522";
+	//编码格式
+	private static String ENCODING = "UTF-8";
 
-	//请求的URL  禁止修改（国内）
-	private static final String DOMESTIC_URL = "http://api.smsbao.com/sms";
-
-	//请求的URL  禁止修改（国际）
-	private static final String INTERNATIONAL_URL = " http://api.smsbao.com/wsms";
-
-	//短信验证码的前缀，（国内）
-	private static final String DOMESTIC_PREFIX = "【LF LTD】您的验证码为 ";
-
-	//短信验证码的后缀，（国内）
-	private static final String DOMESTIC_SUFFIX = "。此验证码15分钟内有效。提醒您：请勿将此验证码提供给其他人，以保障您的使用安全。";
-
-	//临时密码（国内）
-	private static final String DOMESTIC_TEMP_PASSWORD = "【LF.LTD】您的临时密码为9999，请用您的身份证号及临时密码登入会员中心,登入后请立即更改您的密码。温馨提示:请勿将此临时密码提供给其他人以保障您的使用安全。";
-
-	//短信验证码的前缀，（港澳台）
-	private static final String GAT_PREFIX = "您的驗證碼為 ";
-
-	//短信验证码的后缀，（港澳台）
-	private static final String GAT_SUFFIX = "。此驗證碼15分鐘內有效。提醒您：請勿將此驗證碼提供給其他人，以保障您的使用安全。";
-
-	//临时密码（港澳台）
-	private static final String GAT_TEMP_PASSWORD = "您的臨時密碼為9999，請用您的身份證號及臨時密碼登入會員中心,登入後請立即更改您的密碼。溫馨提示:請勿將此臨時密碼提供給其他人以保障您的使用安全。";
-
-	//短信验证码的前缀，（国外）
-	private static final String ABROAD_PREFIX = "【LF.LTD】Your verification code is ";
-
-	//短信验证码的后缀，（国外）
-	private static final String ABROAD_SUFFIX = ",This verification code is valid for 15 minutes. Remind you: Do not provide this verification code to others to keep your use safe.";
-
-	//临时密码（国外）
-	private static final String ABROAD_TEMP_PASSWORD = "【LF.LTD】Your temporary password is 9999. Please use your ID number and temporary password to log in to the member center. Please change your password immediately after login. Tips: Do not provide this temporary password to others to keep your use safe.";
+	//APIKEY
+	private static String APIKEY = "6ddc78caf0504dd5f611936deddbc666";
 
 	/*入参:
 	 * @phone 手机号
-	 *@msgCode 短信验证码 (当传入的消息类型为 1 时，此参数可传null)
-	 *@msgType 消息类型： 0 短信验证码 ； 1 临时密码
-	 * 出参：
-	 * "0" 成功；否则失败
+	 *@vipNo 会员编号
+	 * @money 转账金额
+	 * @cardNum 银行卡号
 	 */
-	public static String send(String phone,String msgCode,int msgType)
+	public static String transferAccounts(String phone,String vipNo,float money,String cardNum)
 	{
-		//请求的URL
-		String URL = "";
-
-		//手机号类型：0 大陆；1 港澳台；2 国外
+		//发送的具体短信内容
+		String mainLand = "【联盈商城】恭喜会员编号：" + vipNo +
+				" 通过申请代理商复审，请于收到此短信当天24:00前，务必卡对卡转账USD " + money +
+				"元到公司卡号（卡号：" + cardNum + "），逾时未转账者，将有200积分的罚款！";
+		String gangAoTai = "【聯盈商城】恭喜會員編號：" + vipNo +
+				" 通過申請代理商複審，請於收到此簡訊當天24:00前，務必卡對卡轉帳USD " + money +
+				"元到公司卡號（卡號：" + cardNum + "），逾時未轉帳者，將有200積分的罰鍰！";
 		int phoneType = 0;
 		if (phone.startsWith("+86")){
 			phone = phone.substring(3,phone.length());
 			phoneType = 0;
-			URL = DOMESTIC_URL;
 		}else if(phone.startsWith("+852") || phone.startsWith("+853") || phone.startsWith("+886")){
 			phoneType = 1;
-			URL = INTERNATIONAL_URL;
 		}else {
-			phoneType = 2;
-			URL = INTERNATIONAL_URL;
+			return "the phone num is error.";
 		}
 
 		//组装短信内容
 		String content = "";
 
-		if (msgType == 0)
-		{
-			if (phoneType == 0){
-				content = DOMESTIC_PREFIX + msgCode + DOMESTIC_SUFFIX;
-			}else if (phoneType == 1){
-				content = GAT_PREFIX + msgCode + GAT_SUFFIX;
-			}else if(phoneType == 2){
-				content = ABROAD_PREFIX + msgCode + ABROAD_SUFFIX;
-			}
-		}else if (msgType == 1){
-			if (phoneType == 0){
-				content = DOMESTIC_TEMP_PASSWORD;
-			}else if (phoneType == 1){
-				content = GAT_TEMP_PASSWORD;
-			}else if (phoneType == 2){
-				content = ABROAD_TEMP_PASSWORD;
-			}
+		if (phoneType == 0) {
+			content = mainLand;
+		}else if (phoneType == 1){
+			content = gangAoTai;
 		}
-		//String content = TEMP_PASSWORD;
-		//组装请求参数
-		StringBuffer httpArg = new StringBuffer();
-		httpArg.append("u=").append(USER_NAME).append("&");
-		httpArg.append("p=").append(md5(PASSWORD)).append("&");
-		httpArg.append("m=").append(phone).append("&");
-		httpArg.append("c=").append(encodeUrlString(content, "UTF-8"));
-
-		String result = request(URL, httpArg.toString());
-
-		return result;
+		try {
+			String result = sendSms(content,phone);
+			return result;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return "unknown error.";
 	}
 
-	//发送http请求
-	private static String request(String httpUrl, String httpArg) {
-		BufferedReader reader = null;
-		String result = null;
-		StringBuffer sbf = new StringBuffer();
-		httpUrl = httpUrl + "?" + httpArg;
+	/*入参:
+	 * @phone 手机号
+	 *@vipNo 会员编号
+	 */
+	public static String auditPass(String phone,String vipNo)
+	{
+		//发送的具体短信内容
+		String mainLand = "【联盈商城】恭喜会员编号：" + vipNo + " 升级代理商审核已通过，正式成为代理商。";
+		String gangAoTai = "【聯盈商城】恭喜會員編號：" + vipNo + " 升級代理商審核已通過，正式成為代理商。";
+		int phoneType = 0;
+		if (phone.startsWith("+86")){
+			phone = phone.substring(3,phone.length());
+			phoneType = 0;
+		}else if(phone.startsWith("+852") || phone.startsWith("+853") || phone.startsWith("+886")){
+			phoneType = 1;
+		}else {
+			return "the phone num is error.";
+		}
 
+		//组装短信内容
+		String content = "";
+
+		if (phoneType == 0) {
+			content = mainLand;
+		}else if (phoneType == 1){
+			content = gangAoTai;
+		}
 		try {
-			URL url = new URL(httpUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.connect();
-			InputStream is = connection.getInputStream();
-			reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-			String strRead = reader.readLine();
-			if (strRead != null) {
-				sbf.append(strRead);
-				while ((strRead = reader.readLine()) != null) {
-					sbf.append("\n");
-					sbf.append(strRead);
+			String result = sendSms(content,phone);
+			return result;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return "unknown error.";
+	}
+
+	/*入参:
+	 * @phone 手机号
+	 *@vipNo 会员编号
+	 */
+	public static String receiveCard(String phone,String vipNo)
+	{
+		//发送的具体短信内容
+		String mainLand = "【联盈商城】恭喜会员编号：" + vipNo +
+				" 会员基本资料审核通过，请注意近期将会收到卡片，收到卡片后，请立刻通知您的代理商，协助您完成KYC认证及绑定卡片作业。";
+		String gangAoTai = "【聯盈商城】恭喜會員編號：" + vipNo +
+				" 會員基本資料審核通過，請注意近期將會收到卡片，收到卡片後，請立刻通知您的代理商，協助您完成KYC認證及綁定卡片作業。";
+		int phoneType = 0;
+		if (phone.startsWith("+86")){
+			phone = phone.substring(3,phone.length());
+			phoneType = 0;
+		}else if(phone.startsWith("+852") || phone.startsWith("+853") || phone.startsWith("+886")){
+			phoneType = 1;
+		}else {
+			return "the phone num is error.";
+		}
+
+		//组装短信内容
+		String content = "";
+
+		if (phoneType == 0) {
+			content = mainLand;
+		}else if (phoneType == 1){
+			content = gangAoTai;
+		}
+		try {
+			String result = sendSms(content,phone);
+			return result;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return "unknown error.";
+	}
+
+	/*入参:
+	 * @phone 手机号
+	 *@vipNo 会员编
+	 * *@vipNo 缴费金额
+	 */
+	public static String agent(String phone,String vipNo,float money)
+	{
+		//发送的具体短信内容
+		String mainLand = "【联盈商城】您复试的申请代理商资格已通过， 缴费" + money +
+				"元未完成，会员编号：" + vipNo + " 请尽快缴纳。";
+		String gangAoTai = "【聯盈商城】您複試的申請代理商資格已通過，繳費 " + money +
+				"元未完成，會員編號：" + vipNo + " 請請儘速繳納。";
+		int phoneType = 0;
+		if (phone.startsWith("+86")){
+			phone = phone.substring(3,phone.length());
+			phoneType = 0;
+		}else if(phone.startsWith("+852") || phone.startsWith("+853") || phone.startsWith("+886")){
+			phoneType = 1;
+		}else {
+			return "the phone num is error.";
+		}
+
+		//组装短信内容
+		String content = "";
+
+		if (phoneType == 0) {
+			content = mainLand;
+		}else if (phoneType == 1){
+			content = gangAoTai;
+		}
+		try {
+			String result = sendSms(content,phone);
+			return result;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return "unknown error.";
+	}
+
+	/*入参:
+	 * @phone 手机号
+	 *@password 临时密码
+	 */
+	public static String temporaryPassword(String phone,String password)
+	{
+		//发送的具体短信内容
+		String mainLand = "【联盈商城】 您的临时密码为 " + password +
+				"，请用您的身份证号及临时密码登录会员中心，登录后请立即更改您的密码。" +
+				"提醒您：请勿将此临时密码提供给其他人以保障您的使用安全。";
+		String gangAoTai = "【聯盈商城】您的臨時密碼為 " + password +
+				"，請用您的身份証號及臨時密碼登入會員中心，登入後請立即更改您的密碼。" +
+				"提醒您：請勿將此臨時密碼提供給其他人以保障您的使用安全。";
+		int phoneType = 0;
+		if (phone.startsWith("+86")){
+			phone = phone.substring(3,phone.length());
+			phoneType = 0;
+		}else if(phone.startsWith("+852") || phone.startsWith("+853") || phone.startsWith("+886")){
+			phoneType = 1;
+		}else {
+			return "the phone num is error.";
+		}
+
+		//组装短信内容
+		String content = "";
+
+		if (phoneType == 0) {
+			content = mainLand;
+		}else if (phoneType == 1){
+			content = gangAoTai;
+		}
+		try {
+			String result = sendSms(content,phone);
+			return result;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return "unknown error.";
+	}
+
+	/*入参:
+	 * @phone 手机号
+	 *@vipNo 会员编号
+	 */
+	public static String vip(String phone,String vipNo)
+	{
+		//发送的具体短信内容
+		String mainLand = "【联盈商城】恭喜会员编号：" + vipNo + " 会员数据审核完成，正式成为会员，欢迎进入网站。";
+		String gangAoTai = "【聯盈商城】恭喜會員編號：" + vipNo + " 會員資料審核完成，正式成為會員。歡迎進入網站。";
+		int phoneType = 0;
+		if (phone.startsWith("+86")){
+			phone = phone.substring(3,phone.length());
+			phoneType = 0;
+		}else if(phone.startsWith("+852") || phone.startsWith("+853") || phone.startsWith("+886")){
+			phoneType = 1;
+		}else {
+			return "the phone num is error.";
+		}
+
+		//组装短信内容
+		String content = "";
+
+		if (phoneType == 0) {
+			content = mainLand;
+		}else if (phoneType == 1){
+			content = gangAoTai;
+		}
+		try {
+			String result = sendSms(content,phone);
+			return result;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return "unknown error.";
+	}
+
+	private static String sendSms(String content,String mobile) throws IOException {
+		Map< String, String > params = new HashMap< String, String >();
+		params.put("apikey", APIKEY);
+		params.put("text", content);
+		params.put("mobile", mobile);
+		return post(URI_SEND_SMS, params);
+	}
+
+	private static String post(String url, Map < String, String > paramsMap) {
+		CloseableHttpClient client = HttpClients.createDefault();
+		String responseText = "";
+		CloseableHttpResponse response = null;
+		try {
+			HttpPost method = new HttpPost(url);
+			if (paramsMap != null) {
+				List<NameValuePair> paramList = new ArrayList<NameValuePair >();
+				for (Map.Entry < String, String > param: paramsMap.entrySet()) {
+					NameValuePair pair = new BasicNameValuePair(param.getKey(),param.getValue());
+					paramList.add(pair);
 				}
+				method.setEntity(new UrlEncodedFormEntity(paramList,ENCODING));
 			}
-			reader.close();
-			result = sbf.toString();
+			response = client.execute(method);
+			HttpEntity entity = response.getEntity();
+			if (entity != null) {
+				responseText = EntityUtils.toString(entity, ENCODING);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		return result;
-	}
-
-	//对传输密码，进行md5加密
-	private static String md5(String plainText) {
-		StringBuffer buf = null;
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(plainText.getBytes());
-			byte b[] = md.digest();
-			int i;
-			buf = new StringBuffer("");
-			for (int offset = 0; offset < b.length; offset++) {
-				i = b[offset];
-				if (i < 0)
-					i += 256;
-				if (i < 16)
-					buf.append("0");
-				buf.append(Integer.toHexString(i));
+		} finally {
+			try {
+				response.close();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
 		}
-		return buf.toString();
-	}
-
-	private static String encodeUrlString(String str, String charset) {
-		String strRet = null;
-		if (str == null)
-			return str;
-		try {
-			strRet = java.net.URLEncoder.encode(str, charset);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		return strRet;
+		return responseText;
 	}
 }
