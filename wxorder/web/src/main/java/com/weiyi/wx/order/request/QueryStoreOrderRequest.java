@@ -1,7 +1,5 @@
 package com.weiyi.wx.order.request;
 
-import com.weiyi.wx.order.dao.entity.OrderInfo;
-
 public class QueryStoreOrderRequest extends BaseRequest{
     //店铺编号
     private String storeId;

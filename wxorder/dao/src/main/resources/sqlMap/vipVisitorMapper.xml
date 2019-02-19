@@ -55,7 +55,36 @@
             </if>
         </where>
     </select>
-
+    <select id="queryAllVipConsume" parameterType="com.weiyi.wx.order.dao.request.GetAllVipConsumeRequest" resultType="com.weiyi.wx.order.dao.entity.StoreOrder">
+        select *
+        from store_order
+        <where>
+            user_phone = #{userPhone} and vip_num is not null
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+    <select id="queryAllVipConsumeMoney" parameterType="com.weiyi.wx.order.dao.request.GetAllVipConsumeRequest" resultType="Double">
+        select SUM(real_amount)
+        from store_order
+        <where>
+            user_phone = #{userPhone} and vip_num is not null and pay_type != 1
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+    <select id="queryAllMoney" parameterType="com.weiyi.wx.order.dao.request.GetAllVipConsumeRequest" resultType="Double">
+        select SUM(real_amount)
+        from store_order
+        <where>
+            user_phone = #{userPhone} and pay_type != 1
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
     <select id="queryVipConsumeCount" parameterType="com.weiyi.wx.order.dao.request.GetVipConsumeRequest" resultType="int">
         select COUNT(DISTINCT order_id)
         from order_info

@@ -1,9 +1,9 @@
 package com.weiyi.wx.order.domain;
 
-public class Statistics {
+public class Statistics<T> {
     private String year;
 
-    private int value;
+    private T value;
 
     public String getYear() {
         return year;
@@ -13,11 +13,11 @@ public class Statistics {
         this.year = year;
     }
 
-    public int getValue() {
+    public T getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(T value) {
         this.value = value;
     }
 }

@@ -2,6 +2,7 @@ package com.weiyi.wx.order.service.api;
 
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.VipVisitor;
+import com.weiyi.wx.order.dao.request.GetAllVipConsumeRequest;
 import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
 import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
 
@@ -16,6 +17,10 @@ public interface VipVisitorService
     void updateVip(VipVisitor vipVisitor);
 
     List<VipVisitor> queryVipList(GetVipVisitorListRequest request);
+
+    List<StoreOrder> queryAllVipConsume(GetAllVipConsumeRequest request);
+
+    double queryAllVipConsumePercent(GetAllVipConsumeRequest request);
 
     int queryVipListCount(GetVipVisitorListRequest request);
 

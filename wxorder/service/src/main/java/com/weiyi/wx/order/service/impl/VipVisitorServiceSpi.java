@@ -7,6 +7,7 @@ import com.weiyi.wx.order.common.utils.TimeUtil;
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.VipVisitor;
 import com.weiyi.wx.order.dao.mapper.VipVisitorMapper;
+import com.weiyi.wx.order.dao.request.GetAllVipConsumeRequest;
 import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
 import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
 import com.weiyi.wx.order.service.api.VipVisitorService;
@@ -72,6 +73,29 @@ public class VipVisitorServiceSpi implements VipVisitorService
             logger.debug("inter queryVipList() func.the user phone is:{}",request.getUserPhone());
         }
         return vipVisitorMapper.queryVipList(request);
+    }
+
+    public List<StoreOrder> queryAllVipConsume(GetAllVipConsumeRequest request) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter queryVipList() func.the user phone is:{}",request.getUserPhone());
+        }
+
+        return vipVisitorMapper.queryAllVipConsume(request);
+    }
+
+    public double queryAllVipConsumePercent(GetAllVipConsumeRequest request) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter queryVipList() func.the user phone is:{}",request.getUserPhone());
+        }
+
+        Double vipMoney = vipVisitorMapper.queryAllVipConsumeMoney(request);
+        Double allMoney = vipVisitorMapper.queryAllMoney(request);
+
+        if (vipMoney != null && allMoney != null){
+            return vipMoney.doubleValue() / allMoney.doubleValue();
+        }
+
+        return 0.0;
     }
 
     public int queryVipListCount(GetVipVisitorListRequest request) {

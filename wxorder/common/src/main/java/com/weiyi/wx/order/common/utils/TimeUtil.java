@@ -61,4 +61,21 @@ public class TimeUtil
             e.printStackTrace();
         }
     }
+
+    //初始化日期map
+    public static void formatMapDouble(String beginTime, String endTime, Map<String,Double> map)
+    {
+        //
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//24小时制
+        try {
+            long beginTimeMillions = simpleDateFormat.parse(beginTime).getTime();
+            long endTimeMillions = simpleDateFormat.parse(endTime).getTime();
+
+            for (;beginTimeMillions < endTimeMillions;beginTimeMillions += 1000*24*3600){
+                map.put(getDate(transferLongToDate(beginTimeMillions)),0.0);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }

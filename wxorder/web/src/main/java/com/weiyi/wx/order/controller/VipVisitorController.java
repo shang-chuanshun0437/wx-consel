@@ -9,9 +9,11 @@ import com.weiyi.wx.order.common.utils.TimeUtil;
 import com.weiyi.wx.order.dao.entity.Menu;
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.VipVisitor;
+import com.weiyi.wx.order.dao.request.GetAllVipConsumeRequest;
 import com.weiyi.wx.order.dao.request.GetVipConsumeRequest;
 import com.weiyi.wx.order.dao.request.GetVipVisitorListRequest;
 import com.weiyi.wx.order.domain.Statistics;
+import com.weiyi.wx.order.domain.StatisticsPercent;
 import com.weiyi.wx.order.interceptor.SecurityAnnotation;
 import com.weiyi.wx.order.request.*;
 import com.weiyi.wx.order.response.*;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 @Controller
@@ -219,11 +222,11 @@ public class VipVisitorController
         }
         //遍历map
         Iterator iterator = map.entrySet().iterator();
-        List<Statistics> statisticsList = new ArrayList<Statistics>();
+        List<Statistics<Integer>> statisticsList = new ArrayList<Statistics<Integer>>();
         while(iterator.hasNext())
         {
             Map.Entry<String, Integer> entry = (Map.Entry<String, Integer>) iterator.next();
-            Statistics statistics = new Statistics();
+            Statistics<Integer> statistics = new Statistics<Integer>();
 
             statistics.setYear(entry.getKey());
             statistics.setValue(entry.getValue());
@@ -231,6 +234,100 @@ public class VipVisitorController
             statisticsList.add(statistics);
         }
         response.setStatistics(statisticsList.toArray(new Statistics[statisticsList.size()]));
+        return response;
+    }
+
+    /*
+     *查询所有会员在某段时间内的消费金额
+     */
+    @RequestMapping(value = "/query/allVip/consume",method = {RequestMethod.POST})
+    @ResponseBody
+    @SecurityAnnotation()
+    public QueryAllVipConsumeResponse queryAllVipConsume(@RequestBody QueryAllVipConsumeRequest request)
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryAllVipConsume() func,user num:{}",request.getUserPhone());
+        }
+
+        QueryAllVipConsumeResponse response = new QueryAllVipConsumeResponse();
+        Result result = new Result();
+        response.setResult(result);
+
+        GetAllVipConsumeRequest getAllVipConsumeRequest = new GetAllVipConsumeRequest();
+        CopyProperties.copy(getAllVipConsumeRequest,request);
+
+        List<StoreOrder> storeOrders = vipVisitorService.queryAllVipConsume(getAllVipConsumeRequest);
+
+        Map<String,Double> map = new HashMap<String,Double>();
+        //初始化map
+        TimeUtil.formatMapDouble(request.getBeginTime(),request.getEndTime(),map);
+        if (storeOrders != null && storeOrders.size() > 0){
+            for (StoreOrder storeOrder : storeOrders){
+                String date = TimeUtil.getDate(storeOrder.getCreateTime());
+                Double total = map.get(date);
+                if (total == null){
+                    map.put(date,storeOrder.getRealAmount());
+                }else {
+                    map.put(date,total + storeOrder.getRealAmount());
+                }
+            }
+        }
+        //遍历map
+        Iterator iterator = map.entrySet().iterator();
+        List<Statistics<Double>> statisticsList = new ArrayList<Statistics<Double>>();
+        while(iterator.hasNext())
+        {
+            Map.Entry<String, Double> entry = (Map.Entry<String, Double>) iterator.next();
+            Statistics<Double> statistics = new Statistics<Double>();
+
+            statistics.setYear(entry.getKey());
+            statistics.setValue(entry.getValue());
+
+            statisticsList.add(statistics);
+        }
+        response.setStatistics(statisticsList.toArray(new Statistics[statisticsList.size()]));
+        return response;
+    }
+
+    /*
+     *查询所有会员在某段时间内的消费金额所占比例
+     */
+    @RequestMapping(value = "/query/allVip/consume/percent",method = {RequestMethod.POST})
+    @ResponseBody
+    @SecurityAnnotation()
+    public QueryAllVipConsumePercentResponse queryAllVipConsumePercent(@RequestBody QueryAllVipConsumePercentRequest request)
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryAllVipConsumePercent() func,user num:{}",request.getUserPhone());
+        }
+
+        QueryAllVipConsumePercentResponse response = new QueryAllVipConsumePercentResponse();
+        Result result = new Result();
+        response.setResult(result);
+
+        GetAllVipConsumeRequest getAllVipConsumeRequest = new GetAllVipConsumeRequest();
+        CopyProperties.copy(getAllVipConsumeRequest,request);
+
+        //获取会员消费比例，并保留两位小数
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+        double vipPercent = Double.valueOf(decimalFormat.format(vipVisitorService.queryAllVipConsumePercent(getAllVipConsumeRequest)));
+
+        List<StatisticsPercent> statisticsPercentList = new ArrayList<StatisticsPercent>(2);
+
+        StatisticsPercent statisticsPercentVip = new StatisticsPercent();
+        statisticsPercentVip.setItem("会员消费");
+        statisticsPercentVip.setPercent(vipPercent);
+
+        StatisticsPercent statisticsPercentNormal = new StatisticsPercent();
+        statisticsPercentNormal.setItem("普通消费");
+        statisticsPercentNormal.setPercent(1 - vipPercent);
+
+        statisticsPercentList.add(statisticsPercentVip);
+        statisticsPercentList.add(statisticsPercentNormal);
+
+        response.setStatisticsPercents(statisticsPercentList.toArray(new StatisticsPercent[statisticsPercentList.size()]));
         return response;
     }
 }
