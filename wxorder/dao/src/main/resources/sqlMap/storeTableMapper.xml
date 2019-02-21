@@ -11,13 +11,14 @@
         <result column="person_num" property="personNum" jdbcType="BIGINT" />
         <result column="status" property="status" jdbcType="BIGINT" />
         <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="qr_code_url" property="qrCodeUrl" jdbcType="VARCHAR" />
     </resultMap>
 
     <insert id="addStoreTable" parameterType="com.weiyi.wx.order.dao.entity.StoreTable">
        INSERT INTO
-       		store_table(id,user_phone,store_id,table_id,capacity,address,person_num,status,create_time)
+       		store_table(id,user_phone,store_id,table_id,capacity,address,person_num,status,create_time,qr_code_url)
        	VALUES
-       		(#{id}, #{userPhone},#{storeId},#{tableId},#{capacity},#{address},#{personNum},#{status},#{createTime})
+       		(#{id}, #{userPhone},#{storeId},#{tableId},#{capacity},#{address},#{personNum},#{status},#{createTime},#{qrCodeUrl})
     </insert>
 
     <update id="updateStore" parameterType="com.weiyi.wx.order.dao.entity.Store">

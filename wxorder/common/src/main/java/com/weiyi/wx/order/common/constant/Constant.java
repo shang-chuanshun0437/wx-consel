@@ -33,10 +33,19 @@ public class Constant
     public static final int DINNERING = 2;
 
     //菜图片存放的虚拟根目录
-    public static final String IMG_VIRTUAL_DIR_ROOT = "http://192.168.1.3:8080/images/foodimages/";
+    public static final String IMG_VIRTUAL_DIR_ROOT = "http://192.168.1.4:8080/images/foodimages/";
 
     //菜图片存放根目录
     public static final String FOOD_IMG_DIR_ROOT = "/usr/data/images/foodimages/";
+
+    //二维码存放的虚拟根目录
+    public static final String QRCODE_VIRTUAL_DIR_ROOT = "http://192.168.1.4:8080/images/qrcodeimages/";
+
+    //二维码存放根目录
+    public static final String QRCODE_IMG_DIR_ROOT = "/usr/data/images/qrcodeimages/";
+
+    //手机app的URL
+    public static final String QRCODE_APP_URL = "http://192.168.1.4:8080/app/";
 
     //食物状态 1 未售罄
     public static final int NOT_SELL_OUT = 1;

@@ -11,6 +11,7 @@ CREATE TABLE store_table
     person_num int NOT NULL comment "就餐人数",
     status int DEFAULT 0 comment "餐桌使用状态：1 空闲；2就餐中",
     create_time datetime DEFAULT NULL comment "餐桌创建时间,格式为2018-10-15 09:55:46",
+    qr_code_url VARCHAR(256) NOT NULL comment "二维码URL",
     PRIMARY KEY (id),
     UNIQUE KEY(table_id,store_id),
     KEY (status)

@@ -24,6 +24,8 @@ public class StoreTable
 
     private String createTime;
 
+    private String qrCodeUrl;
+
     public Long getUserPhone() {
         return userPhone;
     }
@@ -94,5 +96,13 @@ public class StoreTable
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getQrCodeUrl() {
+        return qrCodeUrl;
+    }
+
+    public void setQrCodeUrl(String qrCodeUrl) {
+        this.qrCodeUrl = qrCodeUrl;
     }
 }

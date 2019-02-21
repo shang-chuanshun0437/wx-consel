@@ -4,6 +4,8 @@ import com.weiyi.wx.order.common.constant.Constant;
 import com.weiyi.wx.order.common.constant.ErrorCode;
 import com.weiyi.wx.order.common.exception.WxOrderAssert;
 import com.weiyi.wx.order.common.redis.RedisClient;
+import com.weiyi.wx.order.common.utils.FileFactory;
+import com.weiyi.wx.order.common.utils.QRCodeGenerate;
 import com.weiyi.wx.order.common.utils.TimeUtil;
 import com.weiyi.wx.order.dao.entity.Store;
 import com.weiyi.wx.order.dao.entity.StoreTable;
@@ -51,10 +53,14 @@ public class StoreTableServiceSpi implements StoreTableService
         StoreTable dbStoreTable = storeTableMapper.queryByTableIdAndStoreId(storeTable);
         WxOrderAssert.isTrue(dbStoreTable == null,ErrorCode.STORE_TABLE_EXIST,"table already exist.");
 
-        //添加餐桌
+        //生成二维码
+        String qrCodeUrl = QRCodeGenerate.create(storeTable.getUserPhone(),storeTable.getStoreId(),storeTable.getTableId());
+
+        //存入数据库
         storeTable.setCreateTime(TimeUtil.getCurrentTime());
         storeTable.setPersonNum(0);
         storeTable.setStatus(Constant.IDLE);
+        storeTable.setQrCodeUrl(qrCodeUrl);
         storeTableMapper.addStoreTable(storeTable);
     }
 
@@ -79,6 +85,13 @@ public class StoreTableServiceSpi implements StoreTableService
         if (logger.isDebugEnabled()){
             logger.debug("inter deleteStoreTable() func.the user is:{}",storeTable.getUserPhone());
         }
+        StoreTable dbStoreTable = storeTableMapper.queryByTableIdAndStoreId(storeTable);
+        WxOrderAssert.isTrue(dbStoreTable != null,ErrorCode.STORE_TABLE_NOT_EXIST,"store table not exist.");
+
+        //删除二维码文件
+        String qrCodeUrl = dbStoreTable.getQrCodeUrl();
+        FileFactory.delFile(Constant.QRCODE_IMG_DIR_ROOT + FileFactory.getFileNameWithTime(qrCodeUrl));
+
         storeTableMapper.deleteTable(storeTable);
     }
 
