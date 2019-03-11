@@ -45,7 +45,7 @@ public class Constant
     public static final String QRCODE_IMG_DIR_ROOT = "/usr/data/images/qrcodeimages/";
 
     //手机app的URL
-    public static final String QRCODE_APP_URL = "http://192.168.1.4:8080/app/";
+    public static final String QRCODE_APP_URL = "http://192.168.1.2:8081/#/good/";
 
     //食物状态 1 未售罄
     public static final int NOT_SELL_OUT = 1;
@@ -76,4 +76,10 @@ public class Constant
 
     //点菜方式1 点菜   2加菜
     public static final int ORDER_TYPE_SECOND = 2;
+
+    //订单来源：1 扫码点餐  2前台点餐
+    public static final int ORDER_SOURCE_APP = 1;
+
+    //订单来源：1 扫码点餐  2前台点餐
+    public static final int ORDER_SOURCE_FRONT = 2;
 }

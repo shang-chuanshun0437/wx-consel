@@ -3,7 +3,6 @@ package com.weiyi.wx.order.service.impl;
 import com.weiyi.wx.order.common.constant.Constant;
 import com.weiyi.wx.order.common.constant.ErrorCode;
 import com.weiyi.wx.order.common.exception.WxOrderAssert;
-import com.weiyi.wx.order.common.redis.RedisClient;
 import com.weiyi.wx.order.common.utils.FileFactory;
 import com.weiyi.wx.order.common.utils.TimeUtil;
 import com.weiyi.wx.order.dao.entity.Menu;
@@ -12,8 +11,8 @@ import com.weiyi.wx.order.dao.entity.StoreTable;
 import com.weiyi.wx.order.dao.mapper.MenuMapper;
 import com.weiyi.wx.order.dao.mapper.StoreMapper;
 import com.weiyi.wx.order.dao.mapper.StoreTableMapper;
-import com.weiyi.wx.order.dao.mapper.UserMapper;
 import com.weiyi.wx.order.dao.request.GetMenuRequest;
+import com.weiyi.wx.order.dao.request.H5GetMenuRequest;
 import com.weiyi.wx.order.service.api.MenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +34,7 @@ public class MenuServiceSpi implements MenuService
     private MenuMapper menuMapper;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private RedisClient redisClient;
+    private StoreTableMapper storeTableMapper;
 
     public void addMenu(Menu menu) {
         if (logger.isDebugEnabled()){
@@ -123,5 +119,23 @@ public class MenuServiceSpi implements MenuService
         }
 
         menuMapper.updateStatusAndRecommend(menu);
+    }
+
+    public List<Menu> h5QueryMenu(H5GetMenuRequest h5GetMenuRequest) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter h5QueryMenu() func.the h5GetMenuRequest is:{}",h5GetMenuRequest);
+        }
+        //首先判断桌号是否存在
+        StoreTable storeTable = new StoreTable();
+
+        storeTable.setUserPhone(h5GetMenuRequest.getUserPhone());
+        storeTable.setStoreId(h5GetMenuRequest.getStoreId());
+        storeTable.setTableId(h5GetMenuRequest.getTableId());
+
+        StoreTable dbStoreTable = storeTableMapper.queryByTableIdAndStoreId(storeTable);
+        WxOrderAssert.isTrue(dbStoreTable != null,ErrorCode.STORE_TABLE_NOT_EXIST,"store table not exist.");
+
+        //查询该店铺的所有菜单
+        return menuMapper.h5QueryMenu(h5GetMenuRequest);
     }
 }

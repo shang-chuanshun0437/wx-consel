@@ -18,6 +18,8 @@ public interface VipVisitorService
 
     List<VipVisitor> queryVipList(GetVipVisitorListRequest request);
 
+    VipVisitor queryVipByUserPhoneAndVipId(VipVisitor request);
+
     List<StoreOrder> queryAllVipConsume(GetAllVipConsumeRequest request);
 
     double queryAllVipConsumePercent(GetAllVipConsumeRequest request);

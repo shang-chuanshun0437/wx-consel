@@ -75,6 +75,11 @@
             </if>
         </where>
     </select>
+    <select id="h5QueryMenu" parameterType="com.weiyi.wx.order.dao.request.H5GetMenuRequest" resultType="com.weiyi.wx.order.dao.entity.Menu">
+        select *
+        from menu
+        where user_phone = #{userPhone} and store_id = #{storeId}
+    </select>
     <delete id="deleteMenu" parameterType="com.weiyi.wx.order.dao.entity.Menu">
         delete from menu where user_phone = #{userPhone} and store_id = #{storeId} and food_id=#{foodId}
     </delete>

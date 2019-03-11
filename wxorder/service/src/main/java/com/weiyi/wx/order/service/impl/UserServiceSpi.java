@@ -4,8 +4,13 @@ import com.weiyi.wx.order.common.constant.ErrorCode;
 import com.weiyi.wx.order.common.exception.WxOrderAssert;
 import com.weiyi.wx.order.common.redis.RedisClient;
 import com.weiyi.wx.order.common.utils.TimeUtil;
+import com.weiyi.wx.order.dao.dto.H5QueryUserDto;
+import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.User;
 import com.weiyi.wx.order.dao.mapper.UserMapper;
+import com.weiyi.wx.order.dao.request.GetPeriodSalesRequest;
+import com.weiyi.wx.order.dao.request.GetUserAllSalesRequest;
+import com.weiyi.wx.order.dao.request.H5GetUserRequest;
 import com.weiyi.wx.order.service.api.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -53,6 +59,22 @@ public class UserServiceSpi implements UserService
 
     }
 
+    public double queryUserAllSales(GetUserAllSalesRequest getUserAllSalesRequest) {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryUserAllSales() func,phoneNum:{}", getUserAllSalesRequest.getUserPhone());
+        }
+        return userMapper.queryUserAllSales(getUserAllSalesRequest);
+    }
+
+    public List<StoreOrder> queryPeriodSales(GetPeriodSalesRequest getPeriodSalesRequest) {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryPeriodSales() func,phoneNum:{}", getPeriodSalesRequest.getUserPhone());
+        }
+        return userMapper.queryPeriodSales(getPeriodSalesRequest);
+    }
+
     @Transactional
     public void updateUser(User user) {
         if (logger.isDebugEnabled())
@@ -70,6 +92,14 @@ public class UserServiceSpi implements UserService
         }
         User user = userMapper.queryUserByPhone(userPhone);
         return user;
+    }
+
+    public H5QueryUserDto h5QueryUser(H5GetUserRequest request) {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter h5QueryUser() func,request:{}", request);
+        }
+        return userMapper.h5QueryUser(request);
     }
 
 }

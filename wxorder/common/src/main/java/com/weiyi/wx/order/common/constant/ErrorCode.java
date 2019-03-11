@@ -79,4 +79,7 @@ public class ErrorCode
 
     //会员不存在
     public static final int VIP_NOT_EXIST = 1024;
+
+    //wxAppId不存在
+    public static final int WX_APP_ID_NOT_EXIST = 1025;
 }

@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 */
 @Controller
 @RequestMapping("/manage/user")
-public class H5UserController
+public class AdminUserController
 {
-    private Logger logger = LoggerFactory.getLogger(H5UserController.class);
+    private Logger logger = LoggerFactory.getLogger(AdminUserController.class);
 
     @Autowired
     private UserService userService;

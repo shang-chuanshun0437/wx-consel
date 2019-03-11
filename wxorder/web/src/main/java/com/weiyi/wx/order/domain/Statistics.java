@@ -1,6 +1,6 @@
 package com.weiyi.wx.order.domain;
 
-public class Statistics<T> {
+public class Statistics<T> implements Comparable<Statistics<T>>{
     private String year;
 
     private T value;
@@ -19,5 +19,9 @@ public class Statistics<T> {
 
     public void setValue(T value) {
         this.value = value;
+    }
+
+    public int compareTo(Statistics<T> o) {
+        return this.year.compareTo(o.getYear());
     }
 }

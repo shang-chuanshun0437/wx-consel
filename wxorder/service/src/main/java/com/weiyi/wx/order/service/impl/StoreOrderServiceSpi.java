@@ -64,7 +64,10 @@ public class StoreOrderServiceSpi implements StoreOrderService
 
         StoreTable dbStoreTable = storeTableMapper.queryByTableIdAndStoreId(storeTable);
         WxOrderAssert.isTrue(dbStoreTable != null, ErrorCode.STORE_TABLE_NOT_EXIST,"store table not exist.");
-        WxOrderAssert.isTrue(dbStoreTable.getStatus() == Constant.IDLE,ErrorCode.STORE_TABLE_USING,"table is using.");
+
+        if (request.getSource() == Constant.ORDER_SOURCE_FRONT){
+            WxOrderAssert.isTrue(dbStoreTable.getStatus() == Constant.IDLE,ErrorCode.STORE_TABLE_USING,"table is using.");
+        }
         /*
          *构造订单参数
         */
@@ -116,6 +119,7 @@ public class StoreOrderServiceSpi implements StoreOrderService
         storeOrder.setAmount(amount);
         storeOrder.setRealAmount(realAmount);
         storeOrder.setVipAmount(vipAmount);
+        storeOrder.setVipNum(request.getVipNum());
 
         storeOrderMapper.addStoreOrder(storeOrder);
 

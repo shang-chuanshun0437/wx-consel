@@ -22,6 +22,10 @@ public class User
 
     private String userAddress;
 
+    private String wxAppId;
+
+    private Integer payType;
+
     private String createTime;
 
     private String updateTime;
@@ -104,5 +108,21 @@ public class User
 
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getWxAppId() {
+        return wxAppId;
+    }
+
+    public void setWxAppId(String wxAppId) {
+        this.wxAppId = wxAppId;
+    }
+
+    public Integer getPayType() {
+        return payType;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
     }
 }

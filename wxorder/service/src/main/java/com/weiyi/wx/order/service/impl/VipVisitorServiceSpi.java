@@ -75,6 +75,13 @@ public class VipVisitorServiceSpi implements VipVisitorService
         return vipVisitorMapper.queryVipList(request);
     }
 
+    public VipVisitor queryVipByUserPhoneAndVipId(VipVisitor request) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter queryVipByUserPhoneAndVipId() func.the user phone is:{}",request.getUserPhone());
+        }
+        return vipVisitorMapper.queryVip(request);
+    }
+
     public List<StoreOrder> queryAllVipConsume(GetAllVipConsumeRequest request) {
         if (logger.isDebugEnabled()){
             logger.debug("inter queryVipList() func.the user phone is:{}",request.getUserPhone());

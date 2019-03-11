@@ -152,6 +152,32 @@ public class VipVisitorController
     }
 
     /*
+     *查询会员数量
+     */
+    @RequestMapping(value = "/query/list/count",method = {RequestMethod.POST})
+    @ResponseBody
+    @SecurityAnnotation()
+    public QueryVipVisitorListCountResponse queryVipList(@RequestBody QueryVipVisitorListCountRequest request)
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryVipList() func,user num:{}",request.getUserPhone());
+        }
+
+        QueryVipVisitorListCountResponse response = new QueryVipVisitorListCountResponse();
+        Result result = new Result();
+        response.setResult(result);
+
+        GetVipVisitorListRequest getVipVisitorListRequest = new GetVipVisitorListRequest();
+        CopyProperties.copy(getVipVisitorListRequest,request);
+
+        int total = vipVisitorService.queryVipListCount(getVipVisitorListRequest);
+        response.setTotal(total);
+
+        return response;
+    }
+
+    /*
      *查询会员消费记录
      */
     @RequestMapping(value = "/query/consume",method = {RequestMethod.POST})

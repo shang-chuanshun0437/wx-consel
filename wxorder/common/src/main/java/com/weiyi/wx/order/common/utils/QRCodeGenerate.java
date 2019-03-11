@@ -45,8 +45,8 @@ public class QRCodeGenerate
 
         //生成二维码
         try {
-            String content = Constant.QRCODE_APP_URL + "userPhone=" + userPhone + "&" +
-                    "storeId=" + storeId + "&" + "tableId=" + tableId;
+            String content = Constant.QRCODE_APP_URL + "userPhone/" + userPhone +
+                    "/storeId/" + storeId + "/tableId/" + tableId;
             BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, WIDTH, HEIGHT, hints);
 
             String fileName = userPhone + "_" + storeId + "_" + tableId + "_" + System.currentTimeMillis() + ".png";

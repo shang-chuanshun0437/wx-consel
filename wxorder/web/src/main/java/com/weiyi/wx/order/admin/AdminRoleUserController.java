@@ -28,9 +28,9 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/role/user")
-public class H5RoleUserController
+public class AdminRoleUserController
 {
-    private Logger logger = LoggerFactory.getLogger(H5RoleUserController.class);
+    private Logger logger = LoggerFactory.getLogger(AdminRoleUserController.class);
 
     @Autowired
     private RoleUserService roleUserService;
