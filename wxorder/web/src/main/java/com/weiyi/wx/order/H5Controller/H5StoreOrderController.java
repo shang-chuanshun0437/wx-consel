@@ -1,7 +1,11 @@
 package com.weiyi.wx.order.H5Controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.weiyi.wx.order.common.Result;
 import com.weiyi.wx.order.common.exception.WxOrderException;
+import com.weiyi.wx.order.common.rabbitmq.RabbitSendManage;
 import com.weiyi.wx.order.common.utils.CopyProperties;
 import com.weiyi.wx.order.request.*;
 import com.weiyi.wx.order.response.*;
@@ -25,7 +29,7 @@ public class H5StoreOrderController
     private StoreOrderService storeOrderService;
 
     /*
-    *添加订单
+    *微信扫码订单：添加订单(前台收银)
     */
     @RequestMapping(value = "/add",method = {RequestMethod.POST})
     @ResponseBody
@@ -44,11 +48,12 @@ public class H5StoreOrderController
         CopyProperties.copy(addStoreOrderRequest,request);
 
         try {
-            storeOrderService.addStoreOrder(addStoreOrderRequest);
+            String str = storeOrderService.addStoreOrder(addStoreOrderRequest);
         }catch (WxOrderException e){
             result.setRetMsg(e.getMsg());
             result.setRetCode(e.getCode());
         }
         return response;
     }
+
 }

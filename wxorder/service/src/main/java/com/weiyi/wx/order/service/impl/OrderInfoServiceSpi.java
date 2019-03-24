@@ -9,6 +9,7 @@ import com.weiyi.wx.order.dao.entity.Store;
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.mapper.OrderInfoMapper;
 import com.weiyi.wx.order.dao.mapper.StoreOrderMapper;
+import com.weiyi.wx.order.dao.request.GetStoreOrderInfoListRequest;
 import com.weiyi.wx.order.service.api.OrderInfoService;
 import com.weiyi.wx.order.service.request.AddOrderInfoRequest;
 import org.slf4j.Logger;
@@ -114,5 +115,12 @@ public class OrderInfoServiceSpi implements OrderInfoService
             logger.debug("into queryOrderInfo,the order id is:{}",orderInfo.getOrderId());
         }
         return orderInfoMapper.queryOrderInfo(orderInfo);
+    }
+
+    public List<OrderInfo> queryOrderInfoByStoreId(GetStoreOrderInfoListRequest getStoreOrderInfoListRequest) {
+        if (logger.isDebugEnabled()){
+            logger.debug("into queryOrderInfoByStoreId,the order id is:{}",getStoreOrderInfoListRequest.getStoreId());
+        }
+        return orderInfoMapper.queryOrderInfoByStoreId(getStoreOrderInfoListRequest);
     }
 }

@@ -1,7 +1,7 @@
 package com.weiyi.wx.order.common.rabbitmq.topic;
 
 import com.rabbitmq.client.*;
-import com.weiyi.wx.order.common.rabbitmq.RabbitManage;
+import com.weiyi.wx.order.common.rabbitmq.RabbitConnectionFactory;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ public class Recv1
     {
         //测试接收数据
         //获取连接
-        Connection connection = RabbitManage.getConnection();
+        Connection connection = RabbitConnectionFactory.getConnection();
         try {
             //从连接中获取通道
             final Channel channel = connection.createChannel();

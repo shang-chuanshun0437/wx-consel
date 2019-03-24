@@ -15,6 +15,8 @@ public class OrderInfo
 
     private String storeId;
 
+    private Integer category;
+
     private Integer foodId;
 
     private String foodName;
@@ -165,5 +167,13 @@ public class OrderInfo
 
     public void setOrderType(Integer orderType) {
         this.orderType = orderType;
+    }
+
+    public Integer getCategory() {
+        return category;
+    }
+
+    public void setCategory(Integer category) {
+        this.category = category;
     }
 }

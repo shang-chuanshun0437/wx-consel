@@ -2,13 +2,16 @@ package com.weiyi.wx.order.service.api;
 
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.request.GetStoreOrderListRequest;
+import com.weiyi.wx.order.dao.request.GetWxOrderSalesRequest;
 import com.weiyi.wx.order.service.request.AddStoreOrderRequest;
 
 import java.util.List;
 
 public interface StoreOrderService
 {
-    void addStoreOrder(AddStoreOrderRequest request);
+    String addStoreOrder(AddStoreOrderRequest request);
+
+    void updateStoreOrderStatus(String orderId);
 
     void deleteStoreOrder(StoreOrder storeOrder);
 
@@ -17,4 +20,8 @@ public interface StoreOrderService
     List<StoreOrder> queryList(GetStoreOrderListRequest request);
 
     int queryListCount(GetStoreOrderListRequest request);
+
+    double queryWxOrderSales(GetWxOrderSalesRequest request);
+
+    StoreOrder createOrder(AddStoreOrderRequest request);
 }

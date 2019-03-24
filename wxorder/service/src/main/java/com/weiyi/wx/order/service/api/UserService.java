@@ -24,4 +24,6 @@ public interface UserService
     User queryUserByPhone(Long userPhone);
 
     H5QueryUserDto h5QueryUser(H5GetUserRequest request);
+
+    void updatePassword(User user);
 }

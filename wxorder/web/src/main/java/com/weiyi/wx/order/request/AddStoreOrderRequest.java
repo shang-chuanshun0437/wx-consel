@@ -19,6 +19,8 @@ public class AddStoreOrderRequest extends BaseRequest{
 
     private Integer source;
 
+    private Integer orderStatus;
+
     private String vipNum;
 
     //点菜详情，存放在数组中
@@ -94,5 +96,13 @@ public class AddStoreOrderRequest extends BaseRequest{
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

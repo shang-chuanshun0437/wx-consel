@@ -32,14 +32,26 @@ public class Constant
     //餐桌状态 3 正在就餐
     public static final int DINNERING = 2;
 
+    //服务器的IP
+    public static final String CONSOLE_SERVER_IP = "192.168.1.4";
+
+    //服务器的端口
+    public static final String CONSOLE_SERVER_PORT = "8080";
+
+    //notify_url 微信支付的回调
+    public static final String NOTIFY_URL = "http://" + CONSOLE_SERVER_IP + ":"
+            + CONSOLE_SERVER_PORT + "/smartlock/wx/callback";
+
     //菜图片存放的虚拟根目录
-    public static final String IMG_VIRTUAL_DIR_ROOT = "http://192.168.1.4:8080/images/foodimages/";
+    public static final String IMG_VIRTUAL_DIR_ROOT = "http://" + CONSOLE_SERVER_IP + ":"
+            + CONSOLE_SERVER_PORT + "/images/foodimages/";
 
     //菜图片存放根目录
     public static final String FOOD_IMG_DIR_ROOT = "/usr/data/images/foodimages/";
 
     //二维码存放的虚拟根目录
-    public static final String QRCODE_VIRTUAL_DIR_ROOT = "http://192.168.1.4:8080/images/qrcodeimages/";
+    public static final String QRCODE_VIRTUAL_DIR_ROOT = "http://" + CONSOLE_SERVER_IP + ":"
+            + CONSOLE_SERVER_PORT + "/images/qrcodeimages/";
 
     //二维码存放根目录
     public static final String QRCODE_IMG_DIR_ROOT = "/usr/data/images/qrcodeimages/";
@@ -82,4 +94,13 @@ public class Constant
 
     //订单来源：1 扫码点餐  2前台点餐
     public static final int ORDER_SOURCE_FRONT = 2;
+
+    //微信扫码点餐，订单添加到交换机的名称
+    public static final String WX_ADD_ORDER_EXCHANGE_NAME = "wx_add_order_exchange";
+
+    //微信扫码点餐，订单添加到消息队列的名称(转发给前台)
+    public static final String WX_ADD_ORDER_QUEUE_NAME_USER = "wx_add_order_queue_user";
+
+    //微信扫码点餐，订单添加到消息队列的名称(转发给前台)
+    public static final String WX_ADD_ORDER_QUEUE_NAME_CONSOLE = "wx_add_order_queue_console";
 }

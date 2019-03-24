@@ -13,21 +13,23 @@
         <result column="real_amount" property="realAmount" jdbcType="DOUBLE" />
         <result column="pay_type" property="payType" jdbcType="BIGINT" />
         <result column="source" property="source" jdbcType="BIGINT" />
+        <result column="order_status" property="orderStatus" jdbcType="BIGINT" />
+        <result column="order_temp" property="orderTemp" jdbcType="BIGINT" />
         <result column="create_time" property="createTime" jdbcType="VARCHAR" />
     </resultMap>
 
     <insert id="addStoreOrder" parameterType="com.weiyi.wx.order.dao.entity.StoreOrder">
        INSERT INTO
-       		store_order(order_id,user_phone,store_id,store_name,table_id,person_num,amount,vip_amount,real_amount,pay_type,source,create_time)
+       		store_order(order_id,user_phone,store_id,store_name,table_id,person_num,amount,vip_amount,real_amount,pay_type,source,create_time,order_status,order_temp)
        	VALUES
-       		(#{orderId}, #{userPhone},#{storeId},#{storeName},#{tableId},#{personNum},#{amount},#{vipAmount},#{realAmount},#{payType},#{source},#{createTime})
+       		(#{orderId}, #{userPhone},#{storeId},#{storeName},#{tableId},#{personNum},#{amount},#{vipAmount},#{realAmount},#{payType},#{source},#{createTime},#{orderStatus},#{orderTemp})
     </insert>
 
     <select id="queryList" parameterType="com.weiyi.wx.order.dao.request.GetStoreOrderListRequest" resultType="com.weiyi.wx.order.dao.entity.StoreOrder">
         select *
         from store_order
         <where>
-            user_phone = #{userPhone}
+            user_phone = #{userPhone} and order_temp = 2
             <if test="tableId != null and tableId != ''">
                 AND table_id = #{tableId}
             </if>
@@ -46,10 +48,13 @@
             <if test="source != null">
                 AND source = #{source}
             </if>
+            <if test="orderStatus != null">
+                AND order_status = #{orderStatus}
+            </if>
             <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
                 AND create_time between #{beginTime} and #{endTime}
             </if>
-            <if test="currentPage != null and '' != currentPage">
+            <if test="currentPage != null">
                 limit #{currentPage},10
             </if>
         </where>
@@ -58,7 +63,7 @@
         select COUNT(*)
         from store_order
         <where>
-            user_phone = #{userPhone}
+            user_phone = #{userPhone} and order_temp = 2
             <if test="tableId != null and tableId != ''">
                 AND table_id = #{tableId}
             </if>
@@ -77,6 +82,9 @@
             <if test="source != null">
                 AND source = #{source}
             </if>
+            <if test="orderStatus != null">
+                AND order_status = #{orderStatus}
+            </if>
             <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
                 AND create_time between #{beginTime} and #{endTime}
             </if>
@@ -93,4 +101,20 @@
         from store_order
         where user_phone = #{userPhone} and store_id = #{storeId} and order_id=#{orderId}
     </select>
+    <select id="queryWxOrderSales" parameterType="com.weiyi.wx.order.dao.request.GetWxOrderSalesRequest" resultType="double">
+        select SUM(real_amount)
+        from store_order
+        <where>
+            user_phone = #{userPhone} and store_id = #{storeId} AND source = 1 and order_temp = 2
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStoreOrderStatus" parameterType="String">
+        update store_order
+        set order_status = 1
+        where order_id=#{orderId}
+    </update>
 </mapper>

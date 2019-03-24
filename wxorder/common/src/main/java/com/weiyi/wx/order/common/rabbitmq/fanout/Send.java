@@ -2,7 +2,7 @@ package com.weiyi.wx.order.common.rabbitmq.fanout;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.weiyi.wx.order.common.rabbitmq.RabbitManage;
+import com.weiyi.wx.order.common.rabbitmq.RabbitConnectionFactory;
 
 /*
 *订阅模式:Fanout exchange 当有队列绑定到该交换机上时，交换机上的消息会发送给所有的队列
@@ -15,7 +15,7 @@ public class Send
     {
         //测试发送数据
         //获取连接
-        Connection connection = RabbitManage.getConnection();
+        Connection connection = RabbitConnectionFactory.getConnection();
         try {
             //从连接中获取通道
             Channel channel = connection.createChannel();

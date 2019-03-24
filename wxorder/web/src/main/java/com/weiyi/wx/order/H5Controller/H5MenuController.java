@@ -105,6 +105,7 @@ public class H5MenuController
 
             response.setStoreName(h5QueryUserDto.getStoreName());
             response.setWxAppId(h5QueryUserDto.getWxAppId());
+            response.setPayType(h5QueryUserDto.getPayType());
             response.setGoods(list.toArray(new Goods[list.size()]));
         }catch (WxOrderException e){
             result.setRetCode(e.getCode());

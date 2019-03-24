@@ -29,6 +29,10 @@ public class StoreOrder
 
     private Integer source;
 
+    private Integer orderStatus;
+
+    private Integer orderTemp;
+
     private String vipNum;
 
     private String createTime;
@@ -135,5 +139,21 @@ public class StoreOrder
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public Integer getOrderTemp() {
+        return orderTemp;
+    }
+
+    public void setOrderTemp(Integer orderTemp) {
+        this.orderTemp = orderTemp;
     }
 }

@@ -6,6 +6,8 @@ public class H5QueryUserDto
 
     private String wxAppId;
 
+    private int payType;
+
     public String getStoreName() {
         return storeName;
     }
@@ -20,5 +22,13 @@ public class H5QueryUserDto
 
     public void setWxAppId(String wxAppId) {
         this.wxAppId = wxAppId;
+    }
+
+    public int getPayType() {
+        return payType;
+    }
+
+    public void setPayType(int payType) {
+        this.payType = payType;
     }
 }

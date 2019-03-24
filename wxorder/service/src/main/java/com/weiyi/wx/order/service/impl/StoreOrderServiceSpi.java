@@ -1,17 +1,22 @@
 package com.weiyi.wx.order.service.impl;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.weiyi.wx.order.common.constant.Constant;
 import com.weiyi.wx.order.common.constant.ErrorCode;
 import com.weiyi.wx.order.common.exception.WxOrderAssert;
+import com.weiyi.wx.order.common.rabbitmq.RabbitSendManage;
 import com.weiyi.wx.order.common.utils.CopyProperties;
 import com.weiyi.wx.order.common.utils.TimeUtil;
 import com.weiyi.wx.order.dao.entity.*;
 import com.weiyi.wx.order.dao.mapper.*;
 import com.weiyi.wx.order.dao.request.GetStoreOrderListRequest;
+import com.weiyi.wx.order.dao.request.GetWxOrderSalesRequest;
 import com.weiyi.wx.order.service.api.OrderInfoService;
+import com.weiyi.wx.order.service.api.PaySettingService;
 import com.weiyi.wx.order.service.api.StoreOrderService;
-import com.weiyi.wx.order.service.api.VipVisitorService;
 import com.weiyi.wx.order.service.request.AddStoreOrderRequest;
+import com.weiyi.wx.order.service.wxpay.WXPay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,92 +50,44 @@ public class StoreOrderServiceSpi implements StoreOrderService
     @Autowired
     private VipVisitorMapper vipVisitorMapper;
 
-    @Transactional
-    public void addStoreOrder(AddStoreOrderRequest request) {
+    @Autowired
+    private PaySettingService paySettingService;
+
+    public String addStoreOrder(AddStoreOrderRequest request) {
         if (logger.isDebugEnabled()){
             logger.debug("inter addStoreOrder() func.the user is:{}",request.getUserPhone());
         }
-        //校验该店铺是否属于该用户
-        Store dbStore = storeMapper.queryStoreById(request.getStoreId());
-        WxOrderAssert.isTrue(dbStore != null, ErrorCode.STORE_NOT_EXIST,"store not exist.");
-        WxOrderAssert.isTrue(dbStore.getUserPhone().equals(request.getUserPhone()),ErrorCode.STORE_NOT_RIGHT,"the store not belong the user.");
+        //校验店铺和餐桌是否存在
+        this.checkOrder(request);
 
-        //校验餐桌是否存在
-        StoreTable storeTable = new StoreTable();
+        //如果是扫码点餐---并且是非临时订单，则将订单放入消息队列
+        if (request.getSource() == Constant.ORDER_SOURCE_APP && request.getOrderTemp() == 2){
+            try {
+                String jsonString = JSONObject.toJSONString(request);
 
-        storeTable.setStoreId(request.getStoreId());
-        storeTable.setTableId(request.getTableId());
-        storeTable.setUserPhone(request.getUserPhone());
-
-        StoreTable dbStoreTable = storeTableMapper.queryByTableIdAndStoreId(storeTable);
-        WxOrderAssert.isTrue(dbStoreTable != null, ErrorCode.STORE_TABLE_NOT_EXIST,"store table not exist.");
-
-        if (request.getSource() == Constant.ORDER_SOURCE_FRONT){
-            WxOrderAssert.isTrue(dbStoreTable.getStatus() == Constant.IDLE,ErrorCode.STORE_TABLE_USING,"table is using.");
-        }
-        /*
-         *构造订单参数
-        */
-        //订单生成时间
-        String createTime = TimeUtil.getCurrentTime();
-        //订单ID:当前时间+随机数
-        String orderId = System.currentTimeMillis() + RandomUtils.nextInt(1000) + "";
-        //订单总金额
-        Double amount = 0.0;
-        //会员金额
-        Double vipAmount = 0.0;
-        //实付金额
-        Double realAmount = 0.0;
-
-        for (int i = 0; i < request.getOrderInfos().length; i++){
-            //订单详情
-            OrderInfo orderInfo = request.getOrderInfos()[i];
-            orderInfo.setCreateTime(createTime);
-            orderInfo.setOrderId(orderId);
-            orderInfo.setUserPhone(request.getUserPhone());
-            orderInfo.setVipNum(request.getVipNum());
-            orderInfo.setOrderType(Constant.ORDER_TYPE_FIRST);
-            // 总金额
-            orderInfo.setTotalPrice(orderInfo.getNewPrice() * orderInfo.getFoodCount());
-            // vip总金额
-            orderInfo.setVipTotalPrice(orderInfo.getVipPrice() * orderInfo.getFoodCount());
-
-            //实收金额
-            if (request.getPayType().intValue() == Constant.NO_PAY){
-                orderInfo.setRealPrice(0.0);
-            }else {
-                Double realPrice = request.getVipNum() == null ?
-                        orderInfo.getNewPrice() * orderInfo.getFoodCount() : orderInfo.getVipPrice() * orderInfo.getFoodCount();
-                orderInfo.setRealPrice(realPrice);
+                //存入消息队列
+                RabbitSendManage.topicSendMsg(JSONObject.parseObject(jsonString));
+                return null;
+            }catch (JSONException e){
+                e.printStackTrace();
             }
-
-            //存入数据库
-            orderInfoService.addOrderInfo(orderInfo);
-
-            amount += orderInfo.getNewPrice() * orderInfo.getFoodCount();
-            vipAmount += orderInfo.getVipPrice() * orderInfo.getFoodCount();
-            realAmount += orderInfo.getRealPrice();
+        }else if (request.getSource() == Constant.ORDER_SOURCE_APP && request.getOrderTemp() == 1 && request.getPayType() == Constant.WEI_XI_PAY){
+            //如果是扫码点餐&临时订单&微信在线支付，则调微信预支付接口
+            StoreOrder storeOrder = createOrder(request);
+            return this.wxPreparePay(storeOrder.getRealAmount(),storeOrder.getOrderId(),storeOrder.getUserPhone());
+        } else {
+            createOrder(request);
+            return null;
         }
+        return null;
+    }
 
-        StoreOrder storeOrder = new StoreOrder();
-        CopyProperties.copy(storeOrder,request);
-        storeOrder.setOrderId(orderId);
-        storeOrder.setCreateTime(createTime);
-        storeOrder.setAmount(amount);
-        storeOrder.setRealAmount(realAmount);
-        storeOrder.setVipAmount(vipAmount);
-        storeOrder.setVipNum(request.getVipNum());
-
-        storeOrderMapper.addStoreOrder(storeOrder);
-
-        //修改餐桌状态
-        StoreTable updateStatus = new StoreTable();
-        updateStatus.setUserPhone(request.getUserPhone());
-        updateStatus.setStoreId(request.getStoreId());
-        updateStatus.setTableId(request.getTableId());
-        updateStatus.setStatus(Constant.DINNERING);
-        updateStatus.setPersonNum(request.getPersonNum());
-        storeTableMapper.updateStatusAndPerson(updateStatus);
+    @Override
+    public void updateStoreOrderStatus(String orderId) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter updateStoreOrderStatus() func.the orderId is:{}",orderId);
+        }
+        storeOrderMapper.updateStoreOrderStatus(orderId);
     }
 
     @Transactional
@@ -244,5 +201,127 @@ public class StoreOrderServiceSpi implements StoreOrderService
         }
 
         return storeOrderMapper.queryListCount(request);
+    }
+
+    public double queryWxOrderSales(GetWxOrderSalesRequest request) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter queryWxOrderSales() func.the user is:{}",request.getUserPhone());
+        }
+        Double db = storeOrderMapper.queryWxOrderSales(request);
+        return db == null ? 0.0 : db;
+    }
+
+    //返回订单ID
+    @Transactional
+    public StoreOrder createOrder(AddStoreOrderRequest request){
+        /*
+         *构造订单参数
+         */
+        //订单生成时间
+        String createTime = TimeUtil.getCurrentTime();
+        //订单ID:当前时间+随机数
+        String orderId = System.currentTimeMillis() + RandomUtils.nextInt(1000) + "";
+        //订单总金额
+        Double amount = 0.0;
+        //会员金额
+        Double vipAmount = 0.0;
+        //实付金额
+        Double realAmount = 0.0;
+
+        for (int i = 0; i < request.getOrderInfos().length; i++){
+            //订单详情
+            OrderInfo orderInfo = request.getOrderInfos()[i];
+            orderInfo.setCreateTime(createTime);
+            orderInfo.setOrderId(orderId);
+            orderInfo.setUserPhone(request.getUserPhone());
+            orderInfo.setVipNum(request.getVipNum());
+            orderInfo.setOrderType(Constant.ORDER_TYPE_FIRST);
+            // 总金额
+            orderInfo.setTotalPrice(orderInfo.getNewPrice() * orderInfo.getFoodCount());
+            // vip总金额
+            orderInfo.setVipTotalPrice(orderInfo.getVipPrice() * orderInfo.getFoodCount());
+
+            //实收金额
+            if (request.getPayType().intValue() == Constant.NO_PAY){
+                orderInfo.setRealPrice(0.0);
+            }else {
+                Double realPrice = request.getVipNum() == null ?
+                        orderInfo.getNewPrice() * orderInfo.getFoodCount() : orderInfo.getVipPrice() * orderInfo.getFoodCount();
+                orderInfo.setRealPrice(realPrice);
+            }
+
+            //存入数据库
+            orderInfoService.addOrderInfo(orderInfo);
+
+            amount += orderInfo.getNewPrice() * orderInfo.getFoodCount();
+            vipAmount += orderInfo.getVipPrice() * orderInfo.getFoodCount();
+            realAmount += orderInfo.getRealPrice();
+        }
+
+        StoreOrder storeOrder = new StoreOrder();
+        CopyProperties.copy(storeOrder,request);
+        storeOrder.setOrderId(orderId);
+        storeOrder.setCreateTime(createTime);
+        storeOrder.setAmount(amount);
+        storeOrder.setRealAmount(realAmount);
+        storeOrder.setVipAmount(vipAmount);
+        storeOrder.setVipNum(request.getVipNum());
+
+        storeOrderMapper.addStoreOrder(storeOrder);
+
+        //1 表示为临时订单（在线支付----预支付）
+        if (request.getOrderTemp() != null && request.getOrderTemp() == 1){
+            return storeOrder;
+        }
+        //修改餐桌状态
+        StoreTable updateStatus = new StoreTable();
+        updateStatus.setUserPhone(request.getUserPhone());
+        updateStatus.setStoreId(request.getStoreId());
+        updateStatus.setTableId(request.getTableId());
+        updateStatus.setStatus(Constant.DINNERING);
+        updateStatus.setPersonNum(request.getPersonNum());
+        storeTableMapper.updateStatusAndPerson(updateStatus);
+
+        return storeOrder;
+    }
+
+    private void checkOrder(AddStoreOrderRequest request){
+        //校验该店铺是否属于该用户
+        Store dbStore = storeMapper.queryStoreById(request.getStoreId());
+        WxOrderAssert.isTrue(dbStore != null, ErrorCode.STORE_NOT_EXIST,"store not exist.");
+        WxOrderAssert.isTrue(dbStore.getUserPhone().equals(request.getUserPhone()),ErrorCode.STORE_NOT_RIGHT,"the store not belong the user.");
+
+        //校验餐桌是否存在
+        StoreTable storeTable = new StoreTable();
+
+        storeTable.setStoreId(request.getStoreId());
+        storeTable.setTableId(request.getTableId());
+        storeTable.setUserPhone(request.getUserPhone());
+
+        StoreTable dbStoreTable = storeTableMapper.queryByTableIdAndStoreId(storeTable);
+        WxOrderAssert.isTrue(dbStoreTable != null, ErrorCode.STORE_TABLE_NOT_EXIST,"store table not exist.");
+
+        if (request.getSource() == Constant.ORDER_SOURCE_FRONT){
+            WxOrderAssert.isTrue(dbStoreTable.getStatus() == Constant.IDLE,ErrorCode.STORE_TABLE_USING,"table is using.");
+        }
+    }
+
+    private String wxPreparePay(Double totalFee,String orderId,Long userPhone) {
+        //页面获取openId接口
+        //String getopenid_url = https://api.weixin.qq.com/sns/oauth2/access_token;
+        //String  param = "appid="+你appid+"&secret="+你secret+"&code="+code+"&grant_type=authorization_code";
+        //向微信服务器发送get请求获取openIdStr
+        //String openIdStr = HttpRequest.sendGet(getopenid_url, param);
+        //JSONObject json = JSONObject.parseObject(openIdStr);//转成Json格式
+        //String openId = json.getString("openid");//获取openId
+        //从数据库中获取用户的微信支付参数
+        PaySetting dbPaySetting = paySettingService.queryPaySetting(userPhone);
+        WxOrderAssert.isTrue(dbPaySetting != null,ErrorCode.USER_NOT_EXIST,"user not exist.");
+        WXPay wxPay = new WXPay(dbPaySetting.getAppId(),dbPaySetting.getMchId(),dbPaySetting.getOpenId(),orderId,
+                dbPaySetting.getWxKey(),totalFee);
+
+        String result = wxPay.preparePay();
+        System.out.println("=====================" + result + "============================");
+        return result;
     }
 }

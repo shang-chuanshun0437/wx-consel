@@ -102,4 +102,12 @@ public class UserServiceSpi implements UserService
         return userMapper.h5QueryUser(request);
     }
 
+    public void updatePassword(User user) {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter updatePassword() func,request:{}", user.getUserPhone());
+        }
+        userMapper.updateUser(user);
+    }
+
 }

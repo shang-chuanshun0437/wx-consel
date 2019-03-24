@@ -17,20 +17,31 @@
         <result column="real_price " property="realPrice " jdbcType="DOUBLE" />
         <result column="vip_num" property="vipNum" jdbcType="VARCHAR" />
         <result column="order_type" property="orderType" jdbcType="BIGINT" />
+        <result column="category" property="category" jdbcType="BIGINT" />
         <result column="create_time" property="createTime" jdbcType="VARCHAR" />
     </resultMap>
 
     <insert id="addOrderInfo" parameterType="com.weiyi.wx.order.dao.entity.OrderInfo">
        INSERT INTO
-       		order_info(order_id,user_phone,store_id,food_id,food_name,food_count,old_price,new_price,vip_price,total_price,vip_total_price,real_price,order_type,vip_num,create_time)
+       		order_info(order_id,user_phone,store_id,food_id,food_name,food_count,old_price,new_price,vip_price,total_price,vip_total_price,real_price,order_type,vip_num,create_time,category)
        	VALUES
-       		(#{orderId}, #{userPhone},#{storeId},#{foodId},#{foodName},#{foodCount},#{oldPrice},#{newPrice},#{vipPrice},#{totalPrice},#{vipTotalPrice},#{realPrice},#{orderType},#{vipNum},#{createTime})
+       		(#{orderId}, #{userPhone},#{storeId},#{foodId},#{foodName},#{foodCount},#{oldPrice},#{newPrice},#{vipPrice},#{totalPrice},#{vipTotalPrice},#{realPrice},#{orderType},#{vipNum},#{createTime},#{category})
     </insert>
 
     <select id="queryOrderInfo" parameterType="com.weiyi.wx.order.dao.entity.OrderInfo" resultType="com.weiyi.wx.order.dao.entity.OrderInfo">
         select *
         from order_info
         where user_phone = #{userPhone} and store_id = #{storeId} and order_id = #{orderId}
+    </select>
+    <select id="queryOrderInfoByStoreId" parameterType="com.weiyi.wx.order.dao.request.GetStoreOrderInfoListRequest" resultType="com.weiyi.wx.order.dao.entity.OrderInfo">
+        select *
+        from order_info
+        <where>
+            user_phone = #{userPhone} and store_id = #{storeId}
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
     </select>
     <select id="queryListCount" parameterType="com.weiyi.wx.order.dao.request.GetStoreOrderListRequest" resultType="int">
         select COUNT(*)

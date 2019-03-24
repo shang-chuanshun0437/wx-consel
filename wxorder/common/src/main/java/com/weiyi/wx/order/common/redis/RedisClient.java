@@ -525,5 +525,4 @@ public class RedisClient
             return 0;
         }
     }
-
 }

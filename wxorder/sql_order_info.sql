@@ -17,6 +17,7 @@ CREATE TABLE order_info
     vip_total_price float(6,1) DEFAULT 0 comment "会员总价",
     real_price float(6,1) DEFAULT 0 comment "实收金额",
     order_type int DEFAULT 1 comment "点菜方式：1、点菜  2、加菜",
+    category int DEFAULT 1 comment "菜所属的类目：1 小炒系列 ;2 凉菜系列 ； 3  海鲜系列； 4 汤系列；5 酒水饮料；6 主食 ；7 其它",
     create_time datetime DEFAULT NULL comment "订单创建时间,格式为2018-10-15 09:55:46",
     PRIMARY KEY (id),
     KEY (user_phone,store_id,food_id),

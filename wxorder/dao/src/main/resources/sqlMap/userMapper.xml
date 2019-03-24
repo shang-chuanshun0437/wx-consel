@@ -53,13 +53,16 @@
             <if test="payType != null and payType != ''">
                 pay_type = #{payType},
             </if>
+            <if test="wxAppId != null and wxAppId != ''">
+                wx_app_id = #{wxAppId},
+            </if>
             user_phone=#{userPhone}
         </set>
         where user_phone=#{userPhone}
     </update>
 
     <select id="h5QueryUser" parameterType="com.weiyi.wx.order.dao.request.H5GetUserRequest" resultType="com.weiyi.wx.order.dao.dto.H5QueryUserDto">
-        select b.wx_app_id, s.store_name
+        select b.wx_app_id,b.pay_type, s.store_name
         from business b ,store s
         where b.user_phone = #{userPhone} and s.user_phone = #{userPhone} and s.store_id = #{storeId}
     </select>

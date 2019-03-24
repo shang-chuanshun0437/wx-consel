@@ -12,6 +12,9 @@ public class QueryStoreOrderRequest extends BaseRequest{
     //支付方式：1 未支付； 2 前台支付； 3 支付宝支付（通过点餐页面支付）；4 微信支付（通过点餐页面支付）
     private Integer payType;
 
+    //订单状态：1 商家已接收该订单  2商家未接收该订单
+    private Integer orderStatus;
+
     //订单来源：1 扫描点餐  2前台点餐 3 美团点餐  4 饿了吗点餐
     private Integer source;
 
@@ -84,5 +87,13 @@ public class QueryStoreOrderRequest extends BaseRequest{
 
     public void setVipNum(String vipNum) {
         this.vipNum = vipNum;
+    }
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }
