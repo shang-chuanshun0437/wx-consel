@@ -6,10 +6,11 @@ import com.weiyi.wx.order.dao.request.GetWxOrderSalesRequest;
 import com.weiyi.wx.order.service.request.AddStoreOrderRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StoreOrderService
 {
-    String addStoreOrder(AddStoreOrderRequest request);
+    Map<String, String> addStoreOrder(AddStoreOrderRequest request);
 
     void updateStoreOrderStatus(String orderId);
 
@@ -23,5 +24,5 @@ public interface StoreOrderService
 
     double queryWxOrderSales(GetWxOrderSalesRequest request);
 
-    StoreOrder createOrder(AddStoreOrderRequest request);
+    void createOrder(AddStoreOrderRequest request);
 }

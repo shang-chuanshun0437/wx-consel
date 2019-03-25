@@ -17,6 +17,7 @@ import com.weiyi.wx.order.service.api.PaySettingService;
 import com.weiyi.wx.order.service.api.StoreOrderService;
 import com.weiyi.wx.order.service.request.AddStoreOrderRequest;
 import com.weiyi.wx.order.service.wxpay.WXPay;
+import com.weiyi.wx.order.service.wxpay.WXPayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.commons.lang.math.RandomUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class StoreOrderServiceSpi implements StoreOrderService
 {
     private Logger logger = LoggerFactory.getLogger(StoreOrderServiceSpi.class);
+
+    public static Map<String,AddStoreOrderRequest> addStoreOrderRequestMap = new ConcurrentHashMap<String,AddStoreOrderRequest>();
 
     @Autowired
     private StoreMapper storeMapper;
@@ -53,31 +59,32 @@ public class StoreOrderServiceSpi implements StoreOrderService
     @Autowired
     private PaySettingService paySettingService;
 
-    public String addStoreOrder(AddStoreOrderRequest request) {
+    public Map<String, String> addStoreOrder(AddStoreOrderRequest request) {
         if (logger.isDebugEnabled()){
             logger.debug("inter addStoreOrder() func.the user is:{}",request.getUserPhone());
         }
         //校验店铺和餐桌是否存在
         this.checkOrder(request);
 
-        //如果是扫码点餐---并且是非临时订单，则将订单放入消息队列
+        //如果是扫码点餐---并且是前台支付(即为非临时订单)，则放入消息队列
         if (request.getSource() == Constant.ORDER_SOURCE_APP && request.getOrderTemp() == 2){
             try {
                 String jsonString = JSONObject.toJSONString(request);
 
                 //存入消息队列
                 RabbitSendManage.topicSendMsg(JSONObject.parseObject(jsonString));
-                return null;
             }catch (JSONException e){
                 e.printStackTrace();
             }
-        }else if (request.getSource() == Constant.ORDER_SOURCE_APP && request.getOrderTemp() == 1 && request.getPayType() == Constant.WEI_XI_PAY){
+        }else if (request.getSource() == Constant.ORDER_SOURCE_APP &&
+                request.getOrderTemp() == 1 && request.getPayType() == Constant.WEI_XI_PAY){
             //如果是扫码点餐&临时订单&微信在线支付，则调微信预支付接口
-            StoreOrder storeOrder = createOrder(request);
-            return this.wxPreparePay(storeOrder.getRealAmount(),storeOrder.getOrderId(),storeOrder.getUserPhone());
+            String orderId = System.currentTimeMillis() + RandomUtils.nextInt(1000) + "";
+
+            return wxPreparePay(request.getTotalAmount() * 100,orderId,request.getUserPhone());
+
         } else {
             createOrder(request);
-            return null;
         }
         return null;
     }
@@ -213,7 +220,7 @@ public class StoreOrderServiceSpi implements StoreOrderService
 
     //返回订单ID
     @Transactional
-    public StoreOrder createOrder(AddStoreOrderRequest request){
+    public void createOrder(AddStoreOrderRequest request){
         /*
          *构造订单参数
          */
@@ -269,10 +276,6 @@ public class StoreOrderServiceSpi implements StoreOrderService
 
         storeOrderMapper.addStoreOrder(storeOrder);
 
-        //1 表示为临时订单（在线支付----预支付）
-        if (request.getOrderTemp() != null && request.getOrderTemp() == 1){
-            return storeOrder;
-        }
         //修改餐桌状态
         StoreTable updateStatus = new StoreTable();
         updateStatus.setUserPhone(request.getUserPhone());
@@ -281,8 +284,6 @@ public class StoreOrderServiceSpi implements StoreOrderService
         updateStatus.setStatus(Constant.DINNERING);
         updateStatus.setPersonNum(request.getPersonNum());
         storeTableMapper.updateStatusAndPerson(updateStatus);
-
-        return storeOrder;
     }
 
     private void checkOrder(AddStoreOrderRequest request){
@@ -306,7 +307,7 @@ public class StoreOrderServiceSpi implements StoreOrderService
         }
     }
 
-    private String wxPreparePay(Double totalFee,String orderId,Long userPhone) {
+    private Map<String, String> wxPreparePay(Double totalFee,String orderId,Long userPhone) {
         //页面获取openId接口
         //String getopenid_url = https://api.weixin.qq.com/sns/oauth2/access_token;
         //String  param = "appid="+你appid+"&secret="+你secret+"&code="+code+"&grant_type=authorization_code";
@@ -320,8 +321,24 @@ public class StoreOrderServiceSpi implements StoreOrderService
         WXPay wxPay = new WXPay(dbPaySetting.getAppId(),dbPaySetting.getMchId(),dbPaySetting.getOpenId(),orderId,
                 dbPaySetting.getWxKey(),totalFee);
 
-        String result = wxPay.preparePay();
-        System.out.println("=====================" + result + "============================");
-        return result;
+        Map<String, String> result = wxPay.preparePay();
+        Map<String, String> payMap = null;
+
+        if (result != null && result.get("return_code ") == "SUCCESS" && result.get("result_code ") == "SUCCESS"){
+            try {
+                //在这种情况下才会返回prepay_id
+                payMap = new HashMap<String, String>();
+                payMap.put("appId", dbPaySetting.getAppId());
+                payMap.put("timeStamp", WXPayUtil.getCurrentTimestamp()+"");
+                payMap.put("nonceStr", WXPayUtil.generateNonceStr());
+                payMap.put("signType", "MD5");
+                payMap.put("package", "prepay_id=" + result.get("prepay_id"));
+                String paySign = WXPayUtil.generateSignature(payMap, dbPaySetting.getWxKey());
+                payMap.put("paySign", paySign);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return payMap;
     }
 }

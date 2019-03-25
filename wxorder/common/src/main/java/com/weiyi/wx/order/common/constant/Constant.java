@@ -40,7 +40,7 @@ public class Constant
 
     //notify_url 微信支付的回调
     public static final String NOTIFY_URL = "http://" + CONSOLE_SERVER_IP + ":"
-            + CONSOLE_SERVER_PORT + "/smartlock/wx/callback";
+            + CONSOLE_SERVER_PORT + "/smartlock/h5/callback/wx";
 
     //菜图片存放的虚拟根目录
     public static final String IMG_VIRTUAL_DIR_ROOT = "http://" + CONSOLE_SERVER_IP + ":"

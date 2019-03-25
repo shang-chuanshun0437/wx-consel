@@ -16,6 +16,9 @@ public class WXPayParameter {
     //微信签名
     private String paySign;
 
+    //微信签名类型
+    private String signType;
+
     public String getAppId() {
         return appId;
     }
@@ -54,5 +57,13 @@ public class WXPayParameter {
 
     public void setPaySign(String paySign) {
         this.paySign = paySign;
+    }
+
+    public String getSignType() {
+        return signType;
+    }
+
+    public void setSignType(String signType) {
+        this.signType = signType;
     }
 }

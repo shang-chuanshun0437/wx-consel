@@ -13,7 +13,7 @@ public class H5AddStoreOrderRequest extends BaseRequest{
 
     private Integer personNum;
     //实付金额
-    private Double realAmount;
+    private Double totalAmount;
 
     private Integer payType;
 
@@ -44,12 +44,12 @@ public class H5AddStoreOrderRequest extends BaseRequest{
         this.tableId = tableId;
     }
 
-    public Double getRealAmount() {
-        return realAmount;
+    public Double getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setRealAmount(Double realAmount) {
-        this.realAmount = realAmount;
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public Integer getPayType() {
@@ -106,5 +106,13 @@ public class H5AddStoreOrderRequest extends BaseRequest{
 
     public void setOrderStatus(Integer orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public Integer getOrderTemp() {
+        return orderTemp;
+    }
+
+    public void setOrderTemp(Integer orderTemp) {
+        this.orderTemp = orderTemp;
     }
 }

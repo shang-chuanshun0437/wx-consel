@@ -37,7 +37,7 @@ public class WXPay {
         this.totalFee = totalFee;
     }
 
-    public String preparePay(){
+    public Map<String, String> preparePay(){
         try {
             //拼接统一下单地址参数
             Map<String, String> paraMap = new HashMap<String, String>();
@@ -75,7 +75,8 @@ public class WXPay {
             HttpEntity httpEntity = httpResponse.getEntity();
 
             String str = EntityUtils.toString(httpEntity, "UTF-8");
-            return str;
+            Map<String, String> resultMap = WXPayUtil.xmlToMap(str);
+            return resultMap;
         } catch (Exception e) {
             e.printStackTrace();
         }
