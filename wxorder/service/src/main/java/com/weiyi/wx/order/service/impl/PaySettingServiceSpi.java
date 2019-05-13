@@ -47,4 +47,19 @@ public class PaySettingServiceSpi implements PaySettingService
         }
         return paySettingMapper.queryPaySetting(userPhone);
     }
+
+    @Override
+    public void updatePaySetting(PaySetting paySetting) {
+        if (logger.isDebugEnabled()){
+            logger.debug("inter updatePaySetting() func.the pay setting is:{}",paySetting);
+        }
+        //查询该用户是否存在支付设置
+        PaySetting dbPaySetting = paySettingMapper.queryPaySetting(paySetting.getUserPhone());
+        if (dbPaySetting == null){
+            paySetting.setCreateTime(TimeUtil.getCurrentTime());
+            paySettingMapper.addPaySetting(paySetting);
+        }else {
+            paySettingMapper.updatePaySetting(paySetting);
+        }
+    }
 }

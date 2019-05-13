@@ -9,4 +9,6 @@ public interface PaySettingService
     void addPaySetting(PaySetting paySetting);
 
     PaySetting queryPaySetting(Long userPhone);
+
+    void updatePaySetting(PaySetting paySetting);
 }

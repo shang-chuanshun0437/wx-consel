@@ -29,7 +29,7 @@
         select *
         from store_order
         <where>
-            user_phone = #{userPhone} and order_temp = 2
+            user_phone = #{userPhone}
             <if test="tableId != null and tableId != ''">
                 AND table_id = #{tableId}
             </if>
@@ -63,7 +63,7 @@
         select COUNT(*)
         from store_order
         <where>
-            user_phone = #{userPhone} and order_temp = 2
+            user_phone = #{userPhone}
             <if test="tableId != null and tableId != ''">
                 AND table_id = #{tableId}
             </if>

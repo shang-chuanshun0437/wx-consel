@@ -7,14 +7,15 @@
         <result column="mch_id" property="mchId" jdbcType="VARCHAR" />
         <result column="open_id" property="openId" jdbcType="VARCHAR" />
         <result column="wx_key" property="wxKey" jdbcType="VARCHAR" />
+        <result column="pay_type" property="payType" jdbcType="BIGINT" />
         <result column="create_time" property="createTime" jdbcType="VARCHAR" />
     </resultMap>
 
     <insert id="addPaySetting" parameterType="com.weiyi.wx.order.dao.entity.PaySetting">
        INSERT INTO
-       		pay_setting (user_phone,app_id,mch_id,open_id,create_time,wx_key)
+       		pay_setting (user_phone,app_id,mch_id,open_id,create_time,wx_key,pay_type)
        	VALUES
-       		(#{userPhone},#{appId}, #{mchId},#{openId},#{createTime},#{wxKey})
+       		(#{userPhone},#{appId}, #{mchId},#{openId},#{createTime},#{wxKey},#{payType})
     </insert>
 
     <select id="queryPaySetting" parameterType="Long" resultType="com.weiyi.wx.order.dao.entity.PaySetting">
@@ -22,5 +23,27 @@
         from pay_setting
         where user_phone = #{userPhone}
     </select>
+
+    <update id="updatePaySetting" parameterType="com.weiyi.wx.order.dao.entity.PaySetting">
+        update pay_setting
+        <set>
+            <if test="payType != null and payType != ''">
+                pay_type = #{payType},
+            </if>
+            <if test="appId != null and appId != ''">
+                app_id = #{appId},
+            </if>
+            <if test="openId != null and openId != ''">
+                open_id = #{openId},
+            </if>
+            <if test="wxKey != null and wxKey != ''">
+                wx_key = #{wxKey},
+            </if>
+            <if test="mchId != null and mchId != ''">
+                mch_id = #{mchId},
+            </if>
+        </set>
+        where user_phone = #{userPhone}
+    </update>
 
 </mapper>

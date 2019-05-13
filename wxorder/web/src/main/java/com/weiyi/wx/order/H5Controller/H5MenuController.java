@@ -94,17 +94,15 @@ public class H5MenuController
             }
 
             /*
-             *根据商家编号、店铺ID，查询商家wxAppId、店铺名称
+             *根据商家编号、店铺ID，查询商家支付方式、店铺名称
              */
             H5GetUserRequest h5GetUserRequest = new H5GetUserRequest();
             CopyProperties.copy(h5GetUserRequest,request);
 
             H5QueryUserDto h5QueryUserDto = userService.h5QueryUser(h5GetUserRequest);
-            WxOrderAssert.isTrue(h5QueryUserDto != null && h5QueryUserDto.getStoreName() != null &&
-                    h5QueryUserDto.getWxAppId() != null,ErrorCode.STORE_NOT_EXIST,"parameter is error.");
+            WxOrderAssert.isTrue(h5QueryUserDto != null && h5QueryUserDto.getStoreName() != null ,ErrorCode.STORE_NOT_EXIST,"parameter is error.");
 
             response.setStoreName(h5QueryUserDto.getStoreName());
-            response.setWxAppId(h5QueryUserDto.getWxAppId());
             response.setPayType(h5QueryUserDto.getPayType());
             response.setGoods(list.toArray(new Goods[list.size()]));
         }catch (WxOrderException e){

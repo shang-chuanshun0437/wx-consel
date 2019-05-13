@@ -12,6 +12,8 @@ public class PaySetting
 
     private String wxKey;
 
+    private Integer payType;
+
     private String createTime;
 
     public Long getUserPhone() {
@@ -60,5 +62,26 @@ public class PaySetting
 
     public void setWxKey(String wxKey) {
         this.wxKey = wxKey;
+    }
+
+    public Integer getPayType() {
+        return payType;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
+    }
+
+    @Override
+    public String toString() {
+        return "PaySetting{" +
+                "userPhone=" + userPhone +
+                ", appId='" + appId + '\'' +
+                ", mchId='" + mchId + '\'' +
+                ", openId='" + openId + '\'' +
+                ", wxKey='" + wxKey + '\'' +
+                ", payType=" + payType +
+                ", createTime='" + createTime + '\'' +
+                '}';
     }
 }

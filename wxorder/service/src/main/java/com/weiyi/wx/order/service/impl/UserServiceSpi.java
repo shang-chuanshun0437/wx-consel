@@ -8,6 +8,7 @@ import com.weiyi.wx.order.dao.dto.H5QueryUserDto;
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.User;
 import com.weiyi.wx.order.dao.mapper.UserMapper;
+import com.weiyi.wx.order.dao.request.AdminGetAllUserRequest;
 import com.weiyi.wx.order.dao.request.GetPeriodSalesRequest;
 import com.weiyi.wx.order.dao.request.GetUserAllSalesRequest;
 import com.weiyi.wx.order.dao.request.H5GetUserRequest;
@@ -56,7 +57,11 @@ public class UserServiceSpi implements UserService
     }
 
     public void deleteUser(Long userPhone) {
-
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter queryUserAllSales() func,phoneNum:{}", userPhone);
+        }
+        userMapper.deleteByPhoneNum(userPhone);
     }
 
     public double queryUserAllSales(GetUserAllSalesRequest getUserAllSalesRequest) {
@@ -64,7 +69,10 @@ public class UserServiceSpi implements UserService
         {
             logger.debug("inter queryUserAllSales() func,phoneNum:{}", getUserAllSalesRequest.getUserPhone());
         }
-        return userMapper.queryUserAllSales(getUserAllSalesRequest);
+        if (userMapper.queryUserAllSales(getUserAllSalesRequest) != null){
+            return userMapper.queryUserAllSales(getUserAllSalesRequest);
+        }
+        return 0;
     }
 
     public List<StoreOrder> queryPeriodSales(GetPeriodSalesRequest getPeriodSalesRequest) {
@@ -108,6 +116,24 @@ public class UserServiceSpi implements UserService
             logger.debug("inter updatePassword() func,request:{}", user.getUserPhone());
         }
         userMapper.updateUser(user);
+    }
+
+    @Override
+    public List<User> adminQueryAllUser(AdminGetAllUserRequest adminGetAllUserRequest) {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter adminQueryAllUser() func,request:{}", adminGetAllUserRequest.getUserPhone());
+        }
+        return userMapper.adminQueryAllUser(adminGetAllUserRequest);
+    }
+
+    @Override
+    public int adminQueryAllUserCount(AdminGetAllUserRequest adminGetAllUserRequest) {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("inter adminQueryAllUserCount() func,request:{}", adminGetAllUserRequest.getUserPhone());
+        }
+        return userMapper.adminQueryAllUserCount(adminGetAllUserRequest);
     }
 
 }

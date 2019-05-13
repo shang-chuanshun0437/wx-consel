@@ -1,6 +1,6 @@
 package com.weiyi.wx.order.request;
 
-public class AddUserRequest extends BaseRequest{
+public class AdminAddUserRequest extends BaseRequest{
     //待接入的商家手机号
     private Long needAddPhone;
 

@@ -11,15 +11,13 @@
         <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="VARCHAR" />
         <result column="update_time" property="updateTime" jdbcType="VARCHAR" />
-        <result column="wx_app_id" property="wxAppId" jdbcType="VARCHAR" />
-        <result column="pay_type" property="payType" jdbcType="BIGINT" />
     </resultMap>
 
     <insert id="addUser" parameterType="com.weiyi.wx.order.dao.entity.User">
        INSERT INTO
-       		business(user_phone,user_name,password,token,shop_total,shop_count,user_address,create_time,update_time,wx_app_id,pay_type)
+       		business(user_phone,user_name,password,token,shop_total,shop_count,user_address,create_time,update_time)
        	VALUES
-       		(#{userPhone}, #{userName},#{password},#{token},#{shopTotal},#{shopCount},#{userAddress},#{createTime},#{updateTime},#{wxAppId},#{payType})
+       		(#{userPhone}, #{userName},#{password},#{token},#{shopTotal},#{shopCount},#{userAddress},#{createTime},#{updateTime})
     </insert>
 
     <select id="queryUserByPhone" parameterType="Long" resultType="com.weiyi.wx.order.dao.entity.User">
@@ -50,23 +48,17 @@
             <if test="shopCount != null and shopCount != ''">
                 shop_count = #{shopCount},
             </if>
-            <if test="payType != null and payType != ''">
-                pay_type = #{payType},
-            </if>
-            <if test="wxAppId != null and wxAppId != ''">
-                wx_app_id = #{wxAppId},
-            </if>
             user_phone=#{userPhone}
         </set>
         where user_phone=#{userPhone}
     </update>
 
     <select id="h5QueryUser" parameterType="com.weiyi.wx.order.dao.request.H5GetUserRequest" resultType="com.weiyi.wx.order.dao.dto.H5QueryUserDto">
-        select b.wx_app_id,b.pay_type, s.store_name
-        from business b ,store s
+        select b.pay_type, s.store_name
+        from pay_setting b ,store s
         where b.user_phone = #{userPhone} and s.user_phone = #{userPhone} and s.store_id = #{storeId}
     </select>
-    <select id="queryUserAllSales" parameterType="com.weiyi.wx.order.dao.request.GetUserAllSalesRequest" resultType="double">
+    <select id="queryUserAllSales" parameterType="com.weiyi.wx.order.dao.request.GetUserAllSalesRequest" resultType="Double">
         select SUM(real_amount)
         from store_order
         where user_phone = #{userPhone} AND create_time between #{beginTime} and #{endTime}
@@ -84,4 +76,35 @@
             </if>
         </where>
     </select>
+    <select id="adminQueryAllUserCount" parameterType="com.weiyi.wx.order.dao.request.AdminGetAllUserRequest" resultType="int">
+        select COUNT(*)
+        from business
+        <where>
+            <if test="userPhone != null and userPhone != ''">
+                AND user_phone = #{userPhone}
+            </if>
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+    <select id="adminQueryAllUser" parameterType="com.weiyi.wx.order.dao.request.AdminGetAllUserRequest" resultType="com.weiyi.wx.order.dao.entity.User">
+        select *
+        from business
+        <where>
+            1 = 1
+            <if test="userPhone != null and userPhone != ''">
+                AND user_phone = #{userPhone}
+            </if>
+            <if test="beginTime != null and '' != beginTime and endTime != null and '' != endTime">
+                AND create_time between #{beginTime} and #{endTime}
+            </if>
+            <if test="currentPage != null">
+                limit #{currentPage},10
+            </if>
+        </where>
+    </select>
+    <delete id="deleteByPhoneNum" parameterType="Long">
+        delete from business where user_phone = #{userPhone}
+    </delete>
 </mapper>

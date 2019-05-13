@@ -6,9 +6,6 @@ public class H5QueryMenuResponse extends BaseResponse
 {
     private Goods[] goods;
 
-    //商家wxAppId
-    private String  wxAppId;
-
     //店铺名称
     private String storeName;
 
@@ -21,14 +18,6 @@ public class H5QueryMenuResponse extends BaseResponse
 
     public void setGoods(Goods[] goods) {
         this.goods = goods;
-    }
-
-    public String getWxAppId() {
-        return wxAppId;
-    }
-
-    public void setWxAppId(String wxAppId) {
-        this.wxAppId = wxAppId;
     }
 
     public String getStoreName() {

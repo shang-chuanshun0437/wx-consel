@@ -1,6 +1,7 @@
 
 CREATE database weiyi;
 
+CREATE database weiyi;
 //商家接入表
 CREATE TABLE business
 (
@@ -11,8 +12,6 @@ CREATE TABLE business
     shop_count int DEFAULT 0 comment "商家已接入的店铺数量",
     user_name VARCHAR (16) DEFAULT NULL comment "商家名称",
     user_address VARCHAR (126) DEFAULT NULL comment "商家地址",
-    pay_type int DEFAULT 1 comment "支付方式：1前台支付 2在线支付",
-    wx_app_id VARCHAR (126) NOT NULL comment "商家申请的微信AppID",
     create_time datetime DEFAULT NULL comment "商家接入时间,格式为2018-10-15 09:55:46",
     update_time datetime DEFAULT NULL comment "商家更新时间,格式为2018-10-15 09:55:46",
     PRIMARY KEY (user_phone),

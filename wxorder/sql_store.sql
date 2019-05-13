@@ -1,6 +1,3 @@
-
-CREATE database weiyi;
-
 //商家店铺
 CREATE TABLE store
 (

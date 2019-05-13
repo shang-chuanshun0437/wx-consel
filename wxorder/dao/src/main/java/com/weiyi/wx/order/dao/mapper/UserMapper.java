@@ -3,6 +3,7 @@ package com.weiyi.wx.order.dao.mapper;
 import com.weiyi.wx.order.dao.dto.H5QueryUserDto;
 import com.weiyi.wx.order.dao.entity.StoreOrder;
 import com.weiyi.wx.order.dao.entity.User;
+import com.weiyi.wx.order.dao.request.AdminGetAllUserRequest;
 import com.weiyi.wx.order.dao.request.GetPeriodSalesRequest;
 import com.weiyi.wx.order.dao.request.GetUserAllSalesRequest;
 import com.weiyi.wx.order.dao.request.H5GetUserRequest;
@@ -25,7 +26,11 @@ public interface UserMapper
 
     H5QueryUserDto h5QueryUser(H5GetUserRequest request);
 
-    double queryUserAllSales(GetUserAllSalesRequest getUserAllSalesRequest);
+    Double queryUserAllSales(GetUserAllSalesRequest getUserAllSalesRequest);
 
     List<StoreOrder> queryPeriodSales(GetPeriodSalesRequest getPeriodSalesRequest);
+
+    List<User> adminQueryAllUser(AdminGetAllUserRequest adminGetAllUserRequest);
+
+    int adminQueryAllUserCount(AdminGetAllUserRequest adminGetAllUserRequest);
 }

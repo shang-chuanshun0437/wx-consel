@@ -33,7 +33,7 @@ public class Constant
     public static final int DINNERING = 2;
 
     //服务器的IP
-    public static final String CONSOLE_SERVER_IP = "192.168.1.4";
+    public static final String CONSOLE_SERVER_IP = "47.94.86.112";
 
     //服务器的端口
     public static final String CONSOLE_SERVER_PORT = "8080";
@@ -57,7 +57,7 @@ public class Constant
     public static final String QRCODE_IMG_DIR_ROOT = "/usr/data/images/qrcodeimages/";
 
     //手机app的URL
-    public static final String QRCODE_APP_URL = "http://192.168.1.2:8081/#/good/";
+    public static final String QRCODE_APP_URL = "http://" + CONSOLE_SERVER_IP + ":" + CONSOLE_SERVER_PORT + "/front/wxapp/#/good/";
 
     //食物状态 1 未售罄
     public static final int NOT_SELL_OUT = 1;
